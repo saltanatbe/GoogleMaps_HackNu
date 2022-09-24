@@ -1,5 +1,19 @@
-<script setup>
+<script>
 import { RouterLink, RouterView } from "vue-router";
+import { useMapStore } from "./stores/useMapStore";
+
+export default {
+  data() {
+    return {
+      nightMode: useMapStore().nightMode
+    }
+  },
+  methods: {
+    changeTheme() {
+      useMapStore().setNightMode()
+    }
+  }
+}
 </script>
 
 <template>
@@ -32,7 +46,10 @@ import { RouterLink, RouterView } from "vue-router";
               to="/predefined"
               :class="{ active: this.$route.path === '/predefined' }"
               >Predefined</router-link
-            >
+            >          
+          </li>
+          <li class = "nav-item">
+            <button type="button" class="btn btn-outline-primary" id = "nightMode">Night Mode</button>
           </li>
         </ul>
       </div>

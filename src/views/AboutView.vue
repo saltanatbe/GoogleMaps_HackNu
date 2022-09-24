@@ -11,7 +11,7 @@ console.log("====================================");
 console.log("in about view");
 console.log("====================================");
 let index = 0;
-
+let map = null
 const apiOptions = {
   apiKey: "AIzaSyAues8dw_usefVuVYKfmGAmPmBvPBqmCgY",
   version: "beta",
@@ -26,7 +26,19 @@ const mapOptions = {
     lng: data.list[index].Longitude,
   },
   altitude: data.list[index].Altitude,
-  mapId: "e1b4d53499a2fa30",
+  mapId: "d6f0f88a3b3b2883",
+};
+
+const mapOptionsDark = {
+  tilt: 0,
+  heading: 0,
+  zoom: 18,
+  center: {
+    lat: data.list[index].Latitude,
+    lng: data.list[index].Longitude,
+  },
+  altitude: data.list[index].Altitude,
+  mapId: "580dbb52dcccde5e",
 };
 
 export default {
@@ -35,11 +47,20 @@ export default {
     console.log(document.getElementById("map-predef"));
   },
   mounted() {
-    async function initMap() {
+    var element = document.getElementById("nightMode");
+    element.onclick = async function(event) {
+      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+      else element.innerHTML = "Night Mode";
+      useMapStore().setNightMode();
+      map = await initMap(useMapStore().nightMode);
+      initWebGLOverlayView(map);
+    }
+    async function initMap(isNight) {
       const mapDiv = document.getElementById("map-predef");
       const apiLoader = new Loader(apiOptions);
       await apiLoader.load();
-      return new google.maps.Map(mapDiv, mapOptions);
+      if (isNight == true) return new google.maps.Map(mapDiv, mapOptionsDark);
+      else return new google.maps.Map(mapDiv, mapOptions);
     }
 
     function initWebGLOverlayView(map) {
@@ -142,13 +163,17 @@ export default {
       webGLOverlayView.setMap(map);
     }
 
-    (async () => {
-      let map = await initMap();
+    async function createMap() {
+      map = await initMap(useMapStore().nightMode);
       initWebGLOverlayView(map);
-    })();
+    }
+
+    createMap()
   },
   components: { Metadata }
 };
+
+
 </script>
 
 <template>
