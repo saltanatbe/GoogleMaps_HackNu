@@ -6,9 +6,9 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
 import Metadata from "@/views/components/Metadata.vue";
 
-console.log("====================================");
-console.log("in about view");
-console.log("====================================");
+// console.log("====================================");
+// console.log("in about view");
+// console.log("====================================");
 let index = 0;
 let map = null;
 const apiOptions = {
@@ -43,7 +43,7 @@ const mapOptionsDark = {
 export default {
   beforeUnmount() {
     document.getElementById("map-predef").innerHTML = "";
-    console.log(document.getElementById("map-predef"));
+    // console.log(document.getElementById("map-predef"));
   },
   mounted() {
     var element = document.getElementById("nightMode");
@@ -131,8 +131,8 @@ export default {
               renderer.setAnimationLoop(null);
             } else {
               // mapOptions.heading =
-              console.log(camera);
-              console.log(camera.getView);
+              // console.log(camera);
+              // console.log(camera.getView);
               renderer.setAnimationLoop(() => animationOptions());
             }
             value = !value;
@@ -209,6 +209,6 @@ export default {
 <style scoped>
 .map-size {
   height: 90%;
-  background-color: aqua;
+  background-color: #9cc0f9;
 }
 </style>
