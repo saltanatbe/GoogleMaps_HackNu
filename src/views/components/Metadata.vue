@@ -11,9 +11,9 @@
     
     <template>
       <div id="meta-data" class="meta-data">
-        <p class="text-left">Name: {{formValues.name}}</p>
-        <p class="text-left">Floor label: {{formValues.floor}}</p>
-        <p class="text-left">Activity: {{formValues.activity}}</p>
+        <p class="text-left">Name: {{formValues.Identifier}}</p>
+        <p class="text-left">Floor label: {{formValues["Floor label"]}}</p>
+        <p class="text-left">Activity: {{formValues.Activity}}</p>
         <p class="text-left"></p>
         <p class="text-left">{{formValues.Latitude}}, {{formValues.Longitude}}, {{formValues.Altitude}}</p>
       </div>
@@ -24,7 +24,7 @@
         position: fixed;
         top: 135px;
         right: 10px; 
-        width: 100px;
+        width: 250px;
         box-sizing: border-box; 
         padding: 5px;
         border: solid 2px white;
