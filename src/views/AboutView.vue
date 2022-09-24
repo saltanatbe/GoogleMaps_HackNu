@@ -3,6 +3,7 @@ import data from "@/stores/files.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
+import { useMapStore } from "@/stores/useMapStore.js";
 
 console.log("====================================");
 console.log("in about view");
@@ -27,6 +28,10 @@ const mapOptions = {
 };
 
 export default {
+  beforeUnmount() {
+    document.getElementById("map-predef").innerHTML = "";
+    console.log(document.getElementById("map-predef"));
+  },
   mounted() {
     async function initMap() {
       const mapDiv = document.getElementById("map-predef");
@@ -50,7 +55,7 @@ export default {
         scene.add(directionalLight);
 
         loader = new GLTFLoader();
-        loader.load("pin.gltf", (gltf) => {
+        loader.load("dot.gltf", (gltf) => {
           gltf.scene.scale.set(5, 5, 5);
           gltf.scene.rotation.x = (180 * Math.PI) / 180;
           scene.add(gltf.scene);
@@ -114,8 +119,7 @@ export default {
     }
 
     (async () => {
-      console.log("====================================");
-      const map = await initMap();
+      let map = await initMap();
       initWebGLOverlayView(map);
     })();
   },
@@ -123,15 +127,12 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div id="map-predef" class="size"></div>
-  </div>
+  <div id="map-predef" class="map-size"></div>
 </template>
 
 <style scoped>
-.size {
-  height: 600px;
-  /* width: 200px; */
+.map-size {
+  height: 90%;
   background-color: aqua;
 }
 </style>

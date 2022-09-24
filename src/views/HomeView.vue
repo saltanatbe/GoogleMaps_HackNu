@@ -3,6 +3,7 @@ import data from "@/stores/files.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
+import { useMapStore } from "@/stores/useMapStore.js";
 
 let index = 0;
 
@@ -24,6 +25,10 @@ const mapOptions = {
 };
 
 export default {
+  beforeUnmount() {
+    document.getElementById("map-home").innerHTML = "";
+    console.log(document.getElementById("map-home"));
+  },
   mounted() {
     async function initMap() {
       const mapDiv = document.getElementById("map-home");
@@ -47,7 +52,7 @@ export default {
         scene.add(directionalLight);
 
         loader = new GLTFLoader();
-        loader.load("pin.gltf", (gltf) => {
+        loader.load("dot.gltf", (gltf) => {
           gltf.scene.scale.set(5, 5, 5);
           gltf.scene.rotation.x = (180 * Math.PI) / 180;
           scene.add(gltf.scene);
@@ -110,8 +115,7 @@ export default {
       webGLOverlayView.setMap(map);
     }
     (async () => {
-      console.log("====================================");
-      const map = await initMap();
+      let map = await initMap();
       initWebGLOverlayView(map);
     })();
   },
@@ -135,12 +139,10 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div id="map-home" class="size"></div>
-  </div>
+  <div id="map-home" ref="homeMap" class="map-size"></div>
   <form id="fixed">
   <div class="form-group">
-    <input type="number" class="form-control" required id="lat" placeholder="Enter latitude" v-model="formValues.lat">
+    <input type="number" class="form-control border-4"  required id="lat" placeholder="Enter latitude" v-model="formValues.lat">
   </div>
   <div class="form-group">
     <input type="number" class="form-control" required id="lng" placeholder="Enter longtitude" v-model="formValues.lng">
@@ -174,14 +176,14 @@ export default {
 </template>
 
 <style scoped>
-.size {
-  height: 600px;
+.map-size {
+  height: 90%;
   /* width: 200px; */
   background-color: aqua;
 }
 #fixed{
   position: fixed;
-  top: 120px;
+  top: 130px;
   left: 10px;
   width: 300px;
   box-sizing: border-box;
@@ -189,6 +191,9 @@ export default {
   border: solid 2px white;
   border-radius: 6px;
   background:  rgba(255,255,255,0.7);/* Green background with 30% opacity */
+}
+.form-control{
+  border-width: 3px;
 }
 
 </style>

@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark nav-custom">
     <div class="container-fluid">
       <button
         class="navbar-toggler"
@@ -38,7 +38,16 @@ import { RouterLink, RouterView } from "vue-router";
       </div>
     </div>
   </nav>
-  <RouterView />
+  <RouterView class="content" />
 </template>
 
-<style scoped></style>
+<style scoped>
+.content {
+  height: 100%;
+  width: 100%;
+}
+
+.nav-custom {
+  height: 10%;
+}
+</style>
