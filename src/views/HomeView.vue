@@ -227,7 +227,7 @@ export default {
   <div class="form-group">
     <input type="text" class="form-control" id="activity" placeholder="Activity (optional)" v-model="formValues.activity">
   </div> -->
-  <!-- check -->
+  <!-- checkgu -->
   <div class="form-group">
   <button type="submit" class="btn btn-primary" @click.prevent="findLocation()">Find location</button></div>
 </form>
