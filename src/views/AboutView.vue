@@ -73,6 +73,13 @@ export default {
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.25);
 
+        // // 2. Initiate FlyControls with various params
+        // controls = new FlyControls(camera, renderer.domElement);
+        // controls.movementSpeed = 100;
+        // controls.rollSpeed = Math.PI / 24;
+        // controls.autoForward = false;
+        // controls.dragToLook = true;
+
         directionalLight.position.set(0.5, -1, 0.5);
         scene.add(ambientLight);
         scene.add(directionalLight);
@@ -97,7 +104,9 @@ export default {
         );
         line.rotateX(1.57);
         scene.add(line);
-        //-------------------
+        //-------------------/
+        // 3. update controls with a small step value to "power its engines"
+        // controls.update(0.01);
 
         loader = new GLTFLoader();
         loader.load("dot.gltf", (gltf) => {
@@ -117,7 +126,24 @@ export default {
         let start = data.list[index].Timestamp;
 
         loader.manager.onLoad = () => {
-          renderer.setAnimationLoop(() => {
+          let value = true;
+          map.addListener("click", (event) => {
+            if (value) {
+              renderer.setAnimationLoop(null);
+            } else {
+              // mapOptions.heading =
+              console.log(camera);
+              console.log(camera.getView);
+              renderer.setAnimationLoop(() => animationOptions());
+            }
+            value = !value;
+          });
+
+          // map.addListener("click", (event) => {
+          //   renderer.setAnimationLoop(() => animationOptions());
+          // });
+
+          function animationOptions() {
             start += 1000;
             // console.log(start, data.list[index + 1].Timestamp);
             if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
@@ -127,23 +153,25 @@ export default {
                 start = data.list[index].Timestamp;
               }
             }
+
             mapOptions.center.lat = data.list[index].Latitude;
             mapOptions.center.lng = data.list[index].Longitude;
             mapOptions.altitude = data.list[index].Altitude;
             // from tutorial
-            // map.moveCamera({
-            //   tilt: mapOptions.tilt,
-            //   heading: mapOptions.heading,
-            //   zoom: mapOptions.zoom,
-            // });
-            // if (mapOptions.tilt < 67.5) {
-            //   mapOptions.tilt += 0.5;
-            // } else if (mapOptions.heading <= 360) {
-            //   mapOptions.heading += 0.2;
-            // } else {
-            //   renderer.setAnimationLoop(null);
-            // }
-          });
+            map.moveCamera({
+              tilt: mapOptions.tilt,
+              heading: mapOptions.heading,
+              zoom: mapOptions.zoom,
+              center: {
+                lat: mapOptions.center.lat,
+                lng: mapOptions.center.lng,
+              },
+            });
+            if (mapOptions.tilt < 67.5) {
+              mapOptions.tilt += 0.5;
+            }
+          }
+          renderer.setAnimationLoop(() => animationOptions());
         };
       };
       webGLOverlayView.onDraw = ({ gl, transformer }) => {
