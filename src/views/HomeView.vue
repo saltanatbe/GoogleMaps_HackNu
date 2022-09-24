@@ -6,38 +6,33 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
 import Metadata from "./components/Metadata.vue";
 
-let index = 0;
-
 const apiOptions = {
   apiKey: "AIzaSyAues8dw_usefVuVYKfmGAmPmBvPBqmCgY",
   version: "beta",
 };
-
 let map = null;
-
 const mapOptions = {
   tilt: 0,
   heading: 0,
-  zoom: 18,
+  zoom: 25,
   center: {
-    lat: data.list[index].Latitude,
-    lng: data.list[index].Longitude,
+    lat: data.list[0][0].Latitude,
+    lng: data.list[0][0].Longitude,
   },
-  altitude: data.list[index].Altitude,
+  altitude: data.list[0][0].Altitude,
   mapId: "e1b4d53499a2fa30",
 };
 const mapOptionsDark = {
   tilt: 0,
   heading: 0,
-  zoom: 18,
+  zoom: 25,
   center: {
-    lat: data.list[index].Latitude,
-    lng: data.list[index].Longitude,
+    lat: data.list[0][0].Latitude,
+    lng: data.list[0][0].Longitude,
   },
-  altitude: data.list[index].Altitude,
+  altitude: data.list[0][0].Altitude,
   mapId: "580dbb52dcccde5e",
 };
-
 export default {
   beforeUnmount() {
     document.getElementById("map-home").innerHTML = "";
@@ -104,22 +99,9 @@ export default {
           ...gl.getContextAttributes(),
         });
         renderer.autoClear = false;
-        let start = data.list[index].Timestamp;
+        let start = data.list[0][0].Timestamp;
         loader.manager.onLoad = () => {
           renderer.setAnimationLoop(() => {
-            // start += 1000;
-            // // console.log(start, data.list[index + 1].Timestamp);
-            // if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
-            //   index += 1;
-            //   if (index == data.list.length - 1) {
-            //     index = 0;
-            //     start = data.list[index].Timestamp;
-            //   }
-            // }
-            // mapOptions.center.lat = data.list[index].Latitude;
-            // mapOptions.center.lng = data.list[index].Longitude;
-            // mapOptions.altitude = data.list[index].Altitude;
-            // camera move
             map.moveCamera({
               tilt: mapOptions.tilt,
               heading: mapOptions.heading,
@@ -132,7 +114,7 @@ export default {
             if (mapOptions.tilt < 67.5) {
               mapOptions.tilt += 0.5;
             } else {
-              map.setAnimationLoop(null);
+              renderer.setAnimationLoop(null);
             }
           });
         };
@@ -160,9 +142,9 @@ export default {
   data() {
     return {
       formValues: {
-        Latitude: data.list[index].Latitude,
-        Longitude: data.list[index].Longitude,
-        Altitude: data.list[index].Altitude,
+        Latitude: data.list[0][0].Latitude,
+        Longitude: data.list[0][0].Longitude,
+        Altitude: data.list[0][0].Altitude,
         Identifier: "",
         Timestamp: null,
         "Floor label": null,
@@ -186,14 +168,15 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div class="container90">
     <div id="map-home" ref="homeMap" class="map-size"></div>
     <Metadata :formValues="formValues"></Metadata>
-    <div style="background: white; width: 300px">
+    <!-- <div style="background: white; width: 300px">
       <pre>
-        {{ JSON.stringify(formValues, null, 2) }}
-      </pre>
-    </div>
+          {{ JSON.stringify(formValues, null, 2) }}
+        </pre
+      >
+    </div> -->
     <form id="fixed">
       <div class="form-group">
         <input
@@ -297,8 +280,11 @@ export default {
 </template>
 
 <style scoped>
-.map-size {
+.container90 {
   height: 90%;
+}
+.map-size {
+  height: 100%;
   /* width: 200px; */
   background-color: aqua;
 }

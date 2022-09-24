@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.13.9",
+    "bootstrap": "^5.2.1",
     "pinia": "^2.0.21",
     "require": "^2.4.20",
     "three": "^0.138.3",

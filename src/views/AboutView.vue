@@ -6,10 +6,8 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
 import Metadata from "@/views/components/Metadata.vue";
 
-// console.log("====================================");
-// console.log("in about view");
-// console.log("====================================");
-let index = 0;
+let historyIndex = 0;
+let actionIndex = 0;
 let map = null;
 const apiOptions = {
   apiKey: "AIzaSyAues8dw_usefVuVYKfmGAmPmBvPBqmCgY",
@@ -19,33 +17,42 @@ const apiOptions = {
 const mapOptions = {
   tilt: 0,
   heading: 0,
-  zoom: 18,
+  zoom: 20,
   center: {
-    lat: data.list[index].Latitude,
-    lng: data.list[index].Longitude,
+    lat: data.list[historyIndex][actionIndex].Latitude,
+    lng: data.list[historyIndex][actionIndex].Longitude,
   },
-  altitude: data.list[index].Altitude,
+  altitude: data.list[historyIndex][actionIndex].Altitude,
   mapId: "d6f0f88a3b3b2883",
 };
 
 const mapOptionsDark = {
   tilt: 0,
   heading: 0,
-  zoom: 18,
+  zoom: 20,
   center: {
-    lat: data.list[index].Latitude,
-    lng: data.list[index].Longitude,
+    lat: data.list[historyIndex][actionIndex].Latitude,
+    lng: data.list[historyIndex][actionIndex].Longitude,
   },
-  altitude: data.list[index].Altitude,
+  altitude: data.list[historyIndex][actionIndex].Altitude,
   mapId: "580dbb52dcccde5e",
 };
 
 export default {
+  data() {
+    return {
+      histories: data.list,
+      historyIndex: historyIndex,
+      actionIndex: actionIndex,
+    };
+  },
   beforeUnmount() {
     document.getElementById("map-predef").innerHTML = "";
     // console.log(document.getElementById("map-predef"));
   },
   mounted() {
+    let vue = this;
+
     var element = document.getElementById("nightMode");
     element.onclick = async function (event) {
       if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
@@ -84,7 +91,18 @@ export default {
         scene.add(directionalLight);
 
         // ----cylinder -----
-        const geometry = new THREE.CylinderGeometry(40, 40, 20, 50);
+        // upper radius, bottom radius, altitude
+        console.log(
+          data.list[historyIndex][actionIndex]["Horizontal accuracy"],
+          data.list[historyIndex][actionIndex]["Horizontal accuracy"],
+          data.list[historyIndex][actionIndex]["Vertical accuracy"]
+        );
+        const geometry = new THREE.CylinderGeometry(
+          data.list[historyIndex][actionIndex]["Horizontal accuracy"],
+          data.list[historyIndex][actionIndex]["Horizontal accuracy"],
+          data.list[historyIndex][actionIndex]["Vertical accuracy"],
+          50
+        );
         const material = new THREE.MeshBasicMaterial({
           color: 0x4184f0,
           opacity: 0.5,
@@ -95,7 +113,12 @@ export default {
 
         scene.add(cylinder);
         //-------------------
-        const geometry2 = new THREE.CylinderGeometry(40, 40, 20, 50);
+        const geometry2 = new THREE.CylinderGeometry(
+          data.list[historyIndex][actionIndex]["Horizontal accuracy"],
+          data.list[historyIndex][actionIndex]["Horizontal accuracy"],
+          data.list[historyIndex][actionIndex]["Vertical accuracy"],
+          50
+        );
         const edges = new THREE.EdgesGeometry(geometry2);
         const line = new THREE.LineSegments(
           edges,
@@ -109,7 +132,7 @@ export default {
 
         loader = new GLTFLoader();
         loader.load("dot.gltf", (gltf) => {
-          gltf.scene.scale.set(5, 5, 5);
+          gltf.scene.scale.set(1, 1, 1);
           gltf.scene.rotation.x = (180 * Math.PI) / 180;
           scene.add(gltf.scene);
         });
@@ -122,7 +145,7 @@ export default {
         });
         renderer.autoClear = false;
 
-        let start = data.list[index].Timestamp;
+        let start = data.list[vue.historyIndex][vue.actionIndex].Timestamp;
 
         loader.manager.onLoad = () => {
           let value = true;
@@ -133,41 +156,76 @@ export default {
               // mapOptions.heading =
               // console.log(camera);
               // console.log(camera.getView);
+              let x, y, z;
               renderer.setAnimationLoop(() => animationOptions());
             }
             value = !value;
           });
 
-          // map.addListener("click", (event) => {
-          //   renderer.setAnimationLoop(() => animationOptions());
-          // });
+          function createShallow() {
+            if (vue.actionIndex >= data.list[vue.historyIndex].length) return;
+            const geometry = new THREE.CylinderGeometry(
+              data.list[vue.historyIndex][vue.actionIndex][
+                "Horizontal accuracy"
+              ],
+              data.list[vue.historyIndex][vue.actionIndex][
+                "Horizontal accuracy"
+              ],
+              data.list[vue.historyIndex][vue.actionIndex]["Vertical accuracy"],
+              50
+            );
+            const material = new THREE.MeshBasicMaterial({
+              color: 0x4184f0,
+              opacity: 0.5,
+              transparent: true,
+            });
+            const cylinder = new THREE.Mesh(geometry, material);
+            cylinder.rotateX(1.57);
+            scene.add(cylinder);
+          }
 
           function animationOptions() {
             start += 1000;
-            // console.log(start, data.list[index + 1].Timestamp);
-            if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
-              index += 1;
-              if (index == data.list.length - 1) {
-                index = 0;
-                start = data.list[index].Timestamp;
+            // console.log(historyIndex, actionIndex);
+            if (vue.actionIndex >= data.list[vue.historyIndex].length) {
+            } else {
+              let
+              if (
+                data.list[vue.historyIndex].length > 1 &&
+                start >=
+                  data.list[vue.historyIndex][
+                    (vue.actionIndex + 1) % data.list[vue.historyIndex].length
+                  ].Timestamp
+              ) {
+                createShallow();
+                vue.actionIndex += 1;
+                if (vue.actionIndex == data.list[vue.historyIndex].length - 1) {
+                  vue.actionIndex = 0;
+                  start =
+                    data.list[vue.historyIndex][vue.actionIndex].Timestamp;
+                }
               }
-            }
-
-            mapOptions.center.lat = data.list[index].Latitude;
-            mapOptions.center.lng = data.list[index].Longitude;
-            mapOptions.altitude = data.list[index].Altitude;
-            // from tutorial
-            map.moveCamera({
-              tilt: mapOptions.tilt,
-              heading: mapOptions.heading,
-              zoom: mapOptions.zoom,
-              center: {
-                lat: mapOptions.center.lat,
-                lng: mapOptions.center.lng,
-              },
-            });
-            if (mapOptions.tilt < 67.5) {
-              mapOptions.tilt += 0.5;
+              // console.log(vue.actionIndex, data.list[vue.historyIndex].length);
+              if (vue.actionIndex >= data.list[vue.historyIndex].length) return;
+              mapOptions.center.lat =
+                data.list[vue.historyIndex][vue.actionIndex].Latitude;
+              mapOptions.center.lng =
+                data.list[vue.historyIndex][vue.actionIndex].Longitude;
+              mapOptions.altitude =
+                data.list[vue.historyIndex][vue.actionIndex].Altitude;
+              // from tutorial
+              map.moveCamera({
+                tilt: mapOptions.tilt,
+                heading: mapOptions.heading,
+                zoom: mapOptions.zoom,
+                center: {
+                  lat: mapOptions.center.lat,
+                  lng: mapOptions.center.lng,
+                },
+              });
+              if (mapOptions.tilt < 67.5) {
+                mapOptions.tilt += 0.5;
+              }
             }
           }
           renderer.setAnimationLoop(() => animationOptions());
@@ -198,17 +256,52 @@ export default {
     createMap();
   },
   components: { Metadata },
+  methods: {
+    setHistory(i) {
+      this.historyIndex = i;
+      this.actionIndex = 0;
+    },
+  },
 };
 </script>
 
 <template>
-  <div id="map-predef" class="map-size"></div>
+  <div class="container90">
+    <div
+      class="btn-group"
+      role="group"
+      aria-label="Basic radio toggle button group"
+    >
+      <span v-for="(history, i) in histories">
+        <input
+          type="radio"
+          class="btn-check"
+          name="btnradio"
+          :value="i"
+          :id="`btnradio${i}`"
+          autocomplete="off"
+          v-model="historyIndex"
+        />
+        <label class="btn btn-outline-primary" :for="`btnradio${i}`"
+          >Preset {{ i }}</label
+        >
+      </span>
+    </div>
+    <div id="map-predef" class="map-size"></div>
+  </div>
   <!-- <Metadata :formValues="formValues"></Metadata> -->
 </template>
 
 <style scoped>
+.container90 {
+  height: 90%;
+}
 .map-size {
   height: 90%;
   background-color: #9cc0f9;
+}
+
+.choose-history-bar {
+  height: 10%;
 }
 </style>
