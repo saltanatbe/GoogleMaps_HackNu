@@ -46,14 +46,7 @@ export default {
     // console.log(document.getElementById("map-home"));
   },
   mounted() {
-    var element = document.getElementById("nightMode");
-    element.onclick = async function (event) {
-      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
-      else element.innerHTML = "Night Mode";
-      useMapStore().setNightMode();
-      map = await initMap(useMapStore().nightMode);
-      initWebGLOverlayView(map);
-    };
+    
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-home");
       const apiLoader = new Loader(apiOptions);
@@ -87,6 +80,15 @@ export default {
     }
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
+      var element = document.getElementById("nightMode");
+    element.onclick = async function (event) {
+      renderer.setAnimationLoop("null");
+      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+      else element.innerHTML = "Night Mode";
+      useMapStore().setNightMode();
+      map = await initMap(useMapStore().nightMode);
+      initWebGLOverlayView(map);
+    };
       const webGLOverlayView = new google.maps.WebGLOverlayView();
       webGLOverlayView.onAdd = () => {
         scene = new THREE.Scene();
@@ -157,9 +159,7 @@ export default {
             });
             if (mapOptions.tilt < 67.5) {
               mapOptions.tilt += 0.5;
-            } else {
-              renderer.setAnimationLoop(null);
-            }
+            } 
           });
         };
       };
@@ -204,8 +204,8 @@ export default {
         lat: this.formValues.Latitude,
         lng: this.formValues.Longitude,
       };
-
       mapOptions.altitude = this.formValues.Altitude;
+      webGLOverlayView.setMap(map);
     },
   },
   components: { Metadata },
