@@ -15,7 +15,7 @@ const apiOptions = {
 
 var p = false;
 let map = null;
-// map.setOptions({ draggable: true });
+
 const mapOptions = {
   draggable: false,
   tilt: 0,
@@ -80,8 +80,8 @@ export default {
                 directionsRenderer.setDirections(directionsResult);
                 directionsRenderer.setMap(map);
               }
-              console.log(directionsResult);
-              console.log(directionsStatus);
+              // console.log(directionsResult);
+              // console.log(directionsStatus);
             }
 
           );
@@ -169,7 +169,9 @@ export default {
             });
             if (mapOptions.tilt < 67.5) {
               mapOptions.tilt += 0.5;
-            } 
+            } else {
+              renderer.setAnimationLoop(null);
+            }
           });
         };
       };
