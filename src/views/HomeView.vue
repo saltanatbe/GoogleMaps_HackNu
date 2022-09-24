@@ -1,33 +1,30 @@
 <script>
-import data from "@/stores/files.js";
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { Loader } from "@googlemaps/js-api-loader";
-import { useMapStore } from "@/stores/useMapStore.js";
-import Metadata from './components/Metadata.vue'
-
-
-
-let index = 0;
-
-const apiOptions = {
-  apiKey: "AIzaSyAues8dw_usefVuVYKfmGAmPmBvPBqmCgY",
-  version: "beta",
-};
-
-const mapOptions = {
-  tilt: 0,
-  heading: 0,
-  zoom: 18,
-  center: {
-    lat: data.list[index].Latitude,
-    lng: data.list[index].Longitude,
-  },
-  altitude: data.list[index].Altitude,
-  mapId: "e1b4d53499a2fa30",
-};
-
-export default {
+  import data from "@/stores/files.js";
+  import * as THREE from "three";
+  import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+  import { Loader } from "@googlemaps/js-api-loader";
+  import { useMapStore } from "@/stores/useMapStore.js";
+  import  Metadata  from "@/views/components/Metadata.vue";
+  let index = 0;
+  
+  const apiOptions = {
+    apiKey: "AIzaSyAues8dw_usefVuVYKfmGAmPmBvPBqmCgY",
+    version: "beta",
+  };
+  
+  const mapOptions = {
+    tilt: 0,
+    heading: 0,
+    zoom: 18,
+    center: {
+      lat: data.list[index].Latitude,
+      lng: data.list[index].Longitude,
+    },
+    altitude: data.list[index].Altitude,
+    mapId: "e1b4d53499a2fa30",
+  };
+  
+  export default {
     beforeUnmount() {
         document.getElementById("map-home").innerHTML = "";
         console.log(document.getElementById("map-home"));
@@ -131,77 +128,92 @@ export default {
             initWebGLOverlayView(map);
         })();
     },
+    data() {
+        return {
+            formValues: {
+                lat: null,
+                lng: null,
+                Altitude: null,
+                name: "",
+                time: null,
+                floor: null,
+                horizontalAcc: null,
+                verticalAcc: null,
+                confidence: null,
+                activity: ""
+            }
+        };
+    },
+  // provide() {
+  //   return { formValues: this.formValues, }
+  // },
     components: { Metadata }
 };
-// export default {
-//   components: {
-//     MetaData
-//   }
-// }
-</script>
-
-<template>
-  <Metadata class="fixed-top"></Metadata>
-  <div id="map-home" ref="homeMap" class="map-size"></div>
-  <form id="fixed">
-  <div class="form-group">
-    <input type="number" class="form-control border-4"  required id="lat" placeholder="Enter latitude" v-model="formValues.lat">
-  </div>
-  <div class="form-group">
-    <input type="number" class="form-control" required id="lng" placeholder="Enter longtitude" v-model="formValues.lng">
-  </div>
-  <div class="form-group">
-    <input type="number" class="form-control" required id="alt" placeholder="Enter altitude" v-model="formValues.alt">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="name" placeholder="Enter name(optional)" v-model="formValues.name">
-  </div>
-  <div class="form-group">
-    <input type="number" class="form-control" required id="time" placeholder="Enter time" v-model="formValues.time">
-  </div>
-  <div class="form-group">
-    <input type="number" class="form-control" id="floor" placeholder="Enter floor (optional)" v-model="formValues.floor">
-  </div>
-  <div class="form-group">
-    <input type="number" class="form-control" required id="horizontalAcc" placeholder="Enter horizontal accuracy" v-model="formValues.horizontalAcc">
-  </div>
-  <div class="form-group">
-    <input type="number" class="form-control" required id="verticalAcc" placeholder="Enter vertical accuracy" v-model="formValues.verticalAcc">
-  </div>
-  <div class="form-group">
-    <input type="number" class="form-control" required id="confidence" placeholder="Enter confidence" v-model="formValues.confidence">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="activity" placeholder="Enter activity (optional)" v-model="formValues.activity">
-  </div>
-  <button type="submit" class="btn btn-primary">Find location</button>
-</form>
-</template>
-
-<style scoped>
-
-.map-size {
-  height: 90%;
-  /* width: 200px; */
-  background-color: aqua;
-}
-.fixed-top{
-  right:0;
-  top: 100px;
-}
-#fixed{
-  position: fixed;
-  top: 130px;
-  left: 10px;
-  width: 300px;
-  box-sizing: border-box;
-  padding: 5px;
-  border: solid 2px white;
-  border-radius: 6px;
-  background:  rgba(255,255,255,0.7);/* Green background with 30% opacity */
-}
-.form-control{
-  border-width: 3px;
-}
-
-</style>
+  </script>
+  
+  <template>
+    <div id="map-home" ref="homeMap" class="map-size"></div>
+    <Metadata :formValues="formValues" ></Metadata>
+    <form id="fixed">
+    <div class="form-group">
+      <input type="number" class="form-control border-4"  required id="lat" placeholder="Latitude" v-model="formValues.lat">
+    </div>
+    <div class="form-group">
+      <input type="number" class="form-control" required id="lng" placeholder="Longtitude" v-model="formValues.lng">
+    </div>
+    <div class="form-group">
+      <input type="number" class="form-control" required id="alt" placeholder="Altitude" v-model="formValues.Altitude">
+    </div>
+    <div class="form-group">
+      <input type="text" class="form-control" id="name" placeholder="Name(optional)" v-model="formValues.name">
+    </div>
+    <div class="form-group">
+      <input type="number" class="form-control" required id="time" placeholder="Time passed" v-model="formValues.time">
+    </div>
+    <div class="form-group">
+      <input type="number" class="form-control" id="floor" placeholder="Floor (optional)" v-model="formValues.floor">
+    </div>
+    <div class="form-group">
+      <input type="number" class="form-control" required id="horizontalAcc" placeholder="Horizontal accuracy" v-model="formValues.horizontalAcc">
+    </div>
+    <div class="form-group">
+      <input type="number" class="form-control" required id="verticalAcc" placeholder="Vertical accuracy" v-model="formValues.verticalAcc">
+    </div>
+    <div class="form-group">
+      <input type="number" class="form-control" required id="confidence" placeholder="Confidence" v-model="formValues.confidence">
+    </div>
+    <div class="form-group">
+      <input type="text" class="form-control" id="activity" placeholder="Activity (optional)" v-model="formValues.activity">
+    </div>
+    <div class="form-group">
+    <button type="submit" class="btn btn-primary">Find location</button></div>
+  </form>
+  
+  </template>
+  
+  <style scoped>
+  .map-size {
+    height: 90%;
+    /* width: 200px; */
+    background-color: aqua;
+  }
+  #fixed{
+    position: fixed;
+    top: 135px;
+    left: 10px;
+    width: 20%;
+    box-sizing: border-box;
+    padding: 5px;
+    border: solid 2px white;
+    border-radius: 6px;
+    background:  rgba(255,255,255,0.7); /* Green background with 30% opacity */
+  }
+  
+  .form-control{
+    border-width: 2px;
+  }
+  .form-group{
+    margin: 8px 2px;
+  }
+  
+  </style>

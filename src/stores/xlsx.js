@@ -6,11 +6,14 @@ var XLSX = require('xlsx');
 var workbook = XLSX.readFile('hacknu-dev-data.xlsx');
 var sheet_name_list = workbook.SheetNames;
 var data = [];
-sheet_name_list.forEach(function(y) {
+
+ var fs = require('fs');
+sheet_name_list.forEach(function (y) {
+    var list = [];
     var worksheet = workbook.Sheets[y];
     var headers = {};
     for(z in worksheet) {
-        if(z[0] === '!') continue;
+        if (z[0] === '!') continue;
         //parse out the column, row, and value
         var tt = 0;
         for (var i = 0; i < z.length; i++) {
@@ -27,15 +30,45 @@ sheet_name_list.forEach(function(y) {
         if(row == 1 && value) {
             headers[col] = value;
             continue;
-        }
-
-        if(!data[row]) data[row]={};
-        data[row][headers[col]] = value;
+        } 
+        if(!list[row]) list[row]={};
+        list[row][headers[col]] = value;
     }
     //drop those first two rows which are empty
-    data.shift();
-    data.shift();
-    console.log(data);
-});
+    list.shift();
+    list.shift();
+    //list.push(data[row]);
 
-module.exports = {data};
+    data.push(list);
+});
+//console.log("list: " , data);
+
+var fs = require('fs');
+//     //console.log(data);
+
+var file = fs.createWriteStream('array.txt');
+file.on('error', function(err) { /* error handling */ });
+
+// file.write(data.join(","));
+file.write("[");
+// for (var i = 0; i < a.length; i++)
+    for (var d = 0; d < data.length; d++) {
+    // file.write(String(d)+",");
+    file.write("[");
+    for (var v = 0; v < data[d].length; v++ ){
+        file.write(JSON.stringify(data[d][v]) +"" );
+        console.log("this is d:" + JSON.stringify(data[d][v]))
+        if (v < data[d].length - 1) {
+            file.write(",");
+        }
+    }
+        file.write("]")
+        if (d < data.length - 1) {
+            file.write(",");
+        }
+    }
+    file.write("]")
+    
+file.end();
+
+ module.exports = {data};
