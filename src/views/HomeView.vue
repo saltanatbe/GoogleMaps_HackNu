@@ -142,11 +142,60 @@ export default {
       initWebGLOverlayView(map);
     })();
   },
+  data(){
+    return {
+      formValues: {
+        lat: null,
+        lng: null,
+        alt: null,
+        name: "",
+        time: null,
+        floor: null,
+        horizontalAcc: null,
+        verticalAcc: null,
+        confidence: null,
+        activity: ""
+      }
+    }
+  }
 };
 </script>
 
 <template>
   <div id="map-home" ref="homeMap" class="map-size"></div>
+  <form id="fixed">
+  <div class="form-group">
+    <input type="number" class="form-control border-4"  required id="lat" placeholder="Enter latitude" v-model="formValues.lat">
+  </div>
+  <div class="form-group">
+    <input type="number" class="form-control" required id="lng" placeholder="Enter longtitude" v-model="formValues.lng">
+  </div>
+  <div class="form-group">
+    <input type="number" class="form-control" required id="alt" placeholder="Enter altitude" v-model="formValues.alt">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" id="name" placeholder="Enter name(optional)" v-model="formValues.name">
+  </div>
+  <div class="form-group">
+    <input type="number" class="form-control" required id="time" placeholder="Enter time" v-model="formValues.time">
+  </div>
+  <div class="form-group">
+    <input type="number" class="form-control" id="floor" placeholder="Enter floor (optional)" v-model="formValues.floor">
+  </div>
+  <div class="form-group">
+    <input type="number" class="form-control" required id="horizontalAcc" placeholder="Enter horizontal accuracy" v-model="formValues.horizontalAcc">
+  </div>
+  <div class="form-group">
+    <input type="number" class="form-control" required id="verticalAcc" placeholder="Enter vertical accuracy" v-model="formValues.verticalAcc">
+  </div>
+  <div class="form-group">
+    <input type="number" class="form-control" required id="confidence" placeholder="Enter confidence" v-model="formValues.confidence">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" id="activity" placeholder="Enter activity (optional)" v-model="formValues.activity">
+  </div>
+  <button type="submit" class="btn btn-primary">Find location</button>
+</form>
 </template>
 
 <style scoped>
@@ -155,4 +204,19 @@ export default {
   /* width: 200px; */
   background-color: aqua;
 }
+#fixed{
+  position: fixed;
+  top: 130px;
+  left: 10px;
+  width: 300px;
+  box-sizing: border-box;
+  padding: 5px;
+  border: solid 2px white;
+  border-radius: 6px;
+  background:  rgba(255,255,255,0.7);/* Green background with 30% opacity */
+}
+.form-control{
+  border-width: 3px;
+}
+
 </style>
