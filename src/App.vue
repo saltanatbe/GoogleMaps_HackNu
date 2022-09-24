@@ -48,6 +48,9 @@ export default {
               >Predefined</router-link
             >          
           </li>
+          <li class = "nav-item">
+            <button type="button" class="btn btn-outline-primary" id = "nightMode">Night Mode</button>
+          </li>
         </ul>
       </div>
     </div>

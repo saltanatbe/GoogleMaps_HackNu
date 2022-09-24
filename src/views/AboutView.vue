@@ -45,6 +45,14 @@ export default {
     console.log(document.getElementById("map-predef"));
   },
   mounted() {
+    var element = document.getElementById("nightMode");
+    element.onclick = async function(event) {
+      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+      else element.innerHTML = "Night Mode";
+      useMapStore().setNightMode();
+      map = await initMap(useMapStore().nightMode);
+      initWebGLOverlayView(map);
+    }
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-predef");
       const apiLoader = new Loader(apiOptions);
