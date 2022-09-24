@@ -4,14 +4,13 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
-import  Metadata  from "@/views/components/Metadata.vue";
-
+import Metadata from "@/views/components/Metadata.vue";
 
 console.log("====================================");
 console.log("in about view");
 console.log("====================================");
 let index = 0;
-let map = null
+let map = null;
 const apiOptions = {
   apiKey: "AIzaSyAues8dw_usefVuVYKfmGAmPmBvPBqmCgY",
   version: "beta",
@@ -48,13 +47,13 @@ export default {
   },
   mounted() {
     var element = document.getElementById("nightMode");
-    element.onclick = async function(event) {
+    element.onclick = async function (event) {
       if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
       else element.innerHTML = "Night Mode";
       useMapStore().setNightMode();
       map = await initMap(useMapStore().nightMode);
       initWebGLOverlayView(map);
-    }
+    };
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-predef");
       const apiLoader = new Loader(apiOptions);
@@ -196,17 +195,15 @@ export default {
       initWebGLOverlayView(map);
     }
 
-    createMap()
+    createMap();
   },
-  components: { Metadata }
+  components: { Metadata },
 };
-
-
 </script>
 
 <template>
   <div id="map-predef" class="map-size"></div>
-  <Metadata :formValues="formValues"></Metadata>
+  <!-- <Metadata :formValues="formValues"></Metadata> -->
 </template>
 
 <style scoped>
