@@ -50,7 +50,7 @@ export default {
         scene.add(directionalLight);
 
         loader = new GLTFLoader();
-        loader.load("pin.gltf", (gltf) => {
+        loader.load("dot.gltf", (gltf) => {
           gltf.scene.scale.set(5, 5, 5);
           gltf.scene.rotation.x = (180 * Math.PI) / 180;
           scene.add(gltf.scene);
