@@ -14,8 +14,13 @@
         <p class="text-left">Name: {{formValues.Identifier}}</p>
         <p class="text-left">Floor label: {{formValues["Floor label"]}}</p>
         <p class="text-left">Activity: {{formValues.Activity}}</p>
-        <p class="text-left"></p>
-        <p class="text-left">{{formValues.Latitude}}, {{formValues.Longitude}}, {{formValues.Altitude}}</p>
+        <p class="text-left">Vertical accuracy: {{formValues["Vertical accuracy"]}}</p>
+        <p class="text-left">Horizontal accuracy: {{formValues["Horizontal accuracy"]}}</p>
+        <p class="text-left">Time Stamp: {{formValues.Timestamp}}</p>
+        
+        <p class="text-left">Latitude: {{formValues.Latitude}}</p>
+        <p class="text-left">Longitude: {{formValues.Longitude}}</p>
+        <p class="text-left">Altitude: {{formValues.Altitude}}</p>
       </div>
     </template>
     
@@ -29,7 +34,7 @@
         padding: 5px;
         border: solid 2px white;
         border-radius: 6px;
-        background:  rgba(255,255,255,0.7); /* Green background with 30% opacity */
+        background:  rgba(255,255,255,0.9); /* Green background with 30% opacity */
 
     }
     </style>
