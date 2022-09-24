@@ -3,6 +3,7 @@ import data from "@/stores/files.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
+import { useMapStore } from "@/stores/useMapStore.js";
 
 let index = 0;
 
@@ -24,6 +25,10 @@ const mapOptions = {
 };
 
 export default {
+  beforeUnmount() {
+    document.getElementById("map-home").innerHTML = "";
+    console.log(document.getElementById("map-home"));
+  },
   mounted() {
     async function initMap() {
       const mapDiv = document.getElementById("map-home");
@@ -110,8 +115,7 @@ export default {
       webGLOverlayView.setMap(map);
     }
     (async () => {
-      console.log("====================================");
-      const map = await initMap();
+      let map = await initMap();
       initWebGLOverlayView(map);
     })();
   },
@@ -119,14 +123,12 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div id="map-home" class="size"></div>
-  </div>
+  <div id="map-home" ref="homeMap" class="map-size"></div>
 </template>
 
 <style scoped>
-.size {
-  height: 600px;
+.map-size {
+  height: 90%;
   /* width: 200px; */
   background-color: aqua;
 }
