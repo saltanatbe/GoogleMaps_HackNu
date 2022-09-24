@@ -1,5 +1,19 @@
-<script setup>
+<script>
 import { RouterLink, RouterView } from "vue-router";
+import { useMapStore } from "./stores/useMapStore";
+
+export default {
+  data() {
+    return {
+      nightMode: useMapStore().nightMode
+    }
+  },
+  methods: {
+    changeTheme() {
+      useMapStore().setNightMode()
+    }
+  }
+}
 </script>
 
 <template>

@@ -9,7 +9,7 @@ console.log("====================================");
 console.log("in about view");
 console.log("====================================");
 let index = 0;
-
+let map = null
 const apiOptions = {
   apiKey: "AIzaSyAues8dw_usefVuVYKfmGAmPmBvPBqmCgY",
   version: "beta",
@@ -153,16 +153,22 @@ export default {
       webGLOverlayView.setMap(map);
     }
 
-    (async () => {
-      let map = await initMap(true);
+    async function createMap() {
+      map = await initMap(useMapStore().nightMode);
       initWebGLOverlayView(map);
-    })();
+    }
+
+    createMap()
   },
 };
+
+
 </script>
 
 <template>
+  <input type="checkbox" @click="changeTheme" v-model="nightMode">  
   <div id="map-predef" class="map-size"></div>
+          
 </template>
 
 <style scoped>
