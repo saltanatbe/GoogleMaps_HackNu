@@ -4,6 +4,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
+import  Metadata  from "@/views/components/Metadata.vue";
+
 
 console.log("====================================");
 console.log("in about view");
@@ -196,6 +198,7 @@ export default {
 
     createMap()
   },
+  components: { Metadata }
 };
 
 
@@ -203,6 +206,7 @@ export default {
 
 <template>
   <div id="map-predef" class="map-size"></div>
+  <Metadata :formValues="formValues"></Metadata>
 </template>
 
 <style scoped>
