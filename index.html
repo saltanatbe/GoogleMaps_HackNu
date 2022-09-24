@@ -12,15 +12,21 @@
       crossorigin="anonymous"
     />
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
       body,
-      html {
+      html,
+      .main-div {
         height: 100%;
         width: 100%;
       }
     </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app" class="main-div"></div>
     <script type="module" src="/src/main.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
