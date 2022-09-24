@@ -4,7 +4,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
-import Metadata from "@/views/components/Metadata.vue";
+import  Metadata  from "@/views/components/Metadata.vue";
+
 
 // console.log("====================================");
 // console.log("in about view");
@@ -47,13 +48,7 @@ export default {
   },
   mounted() {
     var element = document.getElementById("nightMode");
-    element.onclick = async function (event) {
-      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
-      else element.innerHTML = "Night Mode";
-      useMapStore().setNightMode();
-      map = await initMap(useMapStore().nightMode);
-      initWebGLOverlayView(map);
-    };
+   
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-predef");
       const apiLoader = new Loader(apiOptions);
@@ -65,7 +60,14 @@ export default {
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
       const webGLOverlayView = new google.maps.WebGLOverlayView();
-
+      element.onclick = async function (event) {
+      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+      else element.innerHTML = "Night Mode";
+      useMapStore().setNightMode();
+      map = await initMap(useMapStore().nightMode);
+      
+      webGLOverlayView.setMap(map);
+    };
       webGLOverlayView.onAdd = () => {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera();
@@ -130,9 +132,6 @@ export default {
             if (value) {
               renderer.setAnimationLoop(null);
             } else {
-              // mapOptions.heading =
-              // console.log(camera);
-              // console.log(camera.getView);
               renderer.setAnimationLoop(() => animationOptions());
             }
             value = !value;
@@ -168,7 +167,7 @@ export default {
             });
             if (mapOptions.tilt < 67.5) {
               mapOptions.tilt += 0.5;
-            }
+            } 
           }
           renderer.setAnimationLoop(() => animationOptions());
         };
@@ -197,13 +196,13 @@ export default {
 
     createMap();
   },
-  components: { Metadata },
+  components: { Metadata }
 };
 </script>
 
 <template>
   <div id="map-predef" class="map-size"></div>
-  <!-- <Metadata :formValues="formValues"></Metadata> -->
+  <!-- <Metadata :formValues="data.list[index]"></Metadata> -->
 </template>
 
 <style scoped>

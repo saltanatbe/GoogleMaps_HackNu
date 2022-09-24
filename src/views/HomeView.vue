@@ -7,7 +7,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
 import Metadata from "./components/Metadata.vue";
-import { useGeolocation } from './useGeolocation'
+import { useGeolocation } from "./useGeolocation";
 
 let index = 0;
 
@@ -48,14 +48,6 @@ export default {
     // console.log(document.getElementById("map-home"));
   },
   mounted() {
-    var element = document.getElementById("nightMode");
-    element.onclick = async function (event) {
-      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
-      else element.innerHTML = "Night Mode";
-      useMapStore().setNightMode();
-      map = await initMap(useMapStore().nightMode);
-      initWebGLOverlayView(map);
-    };
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-home");
       const apiLoader = new Loader(apiOptions);
@@ -65,6 +57,15 @@ export default {
     }
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
+      var element = document.getElementById("nightMode");
+      element.onclick = async function (event) {
+        renderer.setAnimationLoop("null");
+        if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+        else element.innerHTML = "Night Mode";
+        useMapStore().setNightMode();
+        map = await initMap(useMapStore().nightMode);
+        initWebGLOverlayView(map);
+      };
       const webGLOverlayView = new google.maps.WebGLOverlayView();
       webGLOverlayView.onAdd = () => {
         scene = new THREE.Scene();
@@ -135,7 +136,8 @@ export default {
             });
             if (mapOptions.tilt < 67.5) {
               mapOptions.tilt += 0.5;
-            } 
+            } else {
+            }
           });
         };
       };
@@ -172,10 +174,10 @@ export default {
         "Vertical accuracy": null,
         Activity: "",
       },
-      myLocation:{
+      myLocation: {
         lat: null,
         lng: null,
-      }
+      },
     };
   },
 
@@ -187,119 +189,110 @@ export default {
       };
       mapOptions.altitude = this.formValues.Altitude;
     },
+    getMyLocation() {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log(position.coords.latitude);
+          console.log(position.coords.longitude);
+          mapOptions.center.lat = position.coords.latitude;
+          mapOptions.center.lng = position.coords.longitude;
+          this.formValues.Latitude = mapOptions.center.lat;
+          this.formValues.Longitude = mapOptions.center.lng;
+          let alt = prompt(
+            "Please enter on which floor of the building you are? If you are outside, enter 1"
+          );
+          this.formValues.Altitude = alt * 2.7;
+          mapOptions.altitude = this.formValues.Altitude;
+        },
+        (error) => {
+          console.log(error.message);
+        }
+      );
+    },
   },
   components: { Metadata },
 };
 </script>
 
 <template>
-  <div>
-    <div id="map-home" ref="homeMap" class="map-size"></div>
-    <Metadata :formValues="formValues"></Metadata>
-    <form id="fixed">
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control border-4"
-          required
-          id="lat"
-          placeholder="Latitude"
-          v-model.number.lazy="formValues.Latitude"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          required
-          id="lng"
-          placeholder="Longtitude"
-          v-model.number="formValues.Longitude"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          required
-          id="alt"
-          placeholder="Altitude"
-          v-model.number="formValues.Altitude"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          id="name"
-          placeholder="Name (optional)"
-          v-model="formValues.Timestamp"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          id="time"
-          placeholder="Time passed"
-          v-model.number="formValues.time"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          id="floor"
-          placeholder="Floor (optional)"
-          v-model.number="formValues.floor"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          id="horizontalAcc"
-          placeholder="Horizontal accuracy"
-          v-model.number="formValues.horizontalAcc"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          id="verticalAcc"
-          placeholder="Vertical accuracy"
-          v-model.number="formValues.verticalAcc"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          id="activity"
-          placeholder="Activity (optional)"
-          v-model="formValues.activity"
-        />
-      </div>
-      <!-- checkgu -->
-      <div class="form-group">
-        <button
-          type="submit"
-          class="btn btn-primary"
-          @click.prevent="findLocation()"
-        >
-          Find location
-        </button>
-      </div>
-    </form>
+  <div id="map-home" ref="homeMap" class="map-size"></div>
+  <Metadata :formValues="formValues"></Metadata>
+  <form id="fixed">
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control border-4"
+        required
+        id="lat"
+        placeholder="Latitude"
+        v-model.number.lazy="formValues.Latitude"
+      />
+    </div>
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        required
+        id="lng"
+        placeholder="Longtitude"
+        v-model.number="formValues.Longitude"
+      />
+    </div>
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        required
+        id="alt"
+        placeholder="Altitude"
+        v-model.number="formValues.Altitude"
+      />
+    </div>
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        id="name"
+        placeholder="Name(optional)"
+        v-model="formValues.Timestamp"
+      />
+    </div>
+    <!-- <div class="form-group">
+    <input type="text" class="form-control" required id="time" placeholder="Time passed" v-model.number="formValues.time">
   </div>
+  <div class="form-group">
+    <input type="text" class="form-control" id="floor" placeholder="Floor (optional)" v-model.number="formValues.floor">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" required id="horizontalAcc" placeholder="Horizontal accuracy" v-model.number="formValues.horizontalAcc">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" required id="verticalAcc" placeholder="Vertical accuracy" v-model.number="formValues.verticalAcc">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" id="activity" placeholder="Activity (optional)" v-model="formValues.activity">
+  </div> -->
+    <!-- checkgu -->
+    <div class="form-group">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        @click.prevent="findLocation()"
+      >
+        Find location
+      </button>
+      <button class="btn btn-primary" @click.prevent="getMyLocation()">
+        My Location
+      </button>
+    </div>
+  </form>
 </template>
 
 <style scoped>
 .map-size {
   height: 90%;
   /* width: 200px; */
-  background-color: #9cc0f9;
+  background-color: 9cc0f9;
 }
 #fixed {
   position: fixed;
