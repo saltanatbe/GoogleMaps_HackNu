@@ -16,7 +16,13 @@ const apiOptions = {
   version: "beta",
 };
 
+var p = false;
 let map = null;
+
+let myLocation = {
+  lat: data.list[index].Latitude,
+  lng: data.list[index].Longitude,
+};
 
 const mapOptions = {
   tilt: 0,
@@ -53,11 +59,67 @@ export default {
       const apiLoader = new Loader(apiOptions);
       await apiLoader.load();
       if (!isNight) return new google.maps.Map(mapDiv, mapOptions);
-      else return new google.maps.Map(mapDiv, mapOptionsDark);
+      else {
+        mapOptionsDark.center.lat = mapOptions.center.lat;
+        mapOptionsDark.center.lng = mapOptions.center.lng;
+        mapOptionsDark.altitude = mapOptions.altitude;
+        return new google.maps.Map(mapDiv, mapOptionsDark);
+      }
     }
+
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
       var element = document.getElementById("nightMode");
+      var button = document.getElementById("path");
+      var btn = document.getElementById("find");
+      btn.onclick = async function (event) {
+        renderer.setAnimationLoop(() => {
+          map.moveCamera({
+            tilt: mapOptions.tilt,
+            heading: mapOptions.heading,
+            zoom: mapOptions.zoom,
+            center: {
+              lat: mapOptions.center.lat,
+              lng: mapOptions.center.lng,
+            },
+          });
+        });
+        setTimeout(() => {
+          renderer.setAnimationLoop(null);
+        }, 500);
+      };
+
+      button.onclick = async function (event) {
+        event.preventDefault();
+        if (p == false) {
+          const directionsService = new google.maps.DirectionsService();
+          const directionsRenderer = new google.maps.DirectionsRenderer();
+          const dest = mapOptions.center.lat + "," + mapOptions.center.lng;
+          var activity = "DRIVING";
+          var originLocation = myLocation.lat + "," + myLocation.lng;
+          directionsService.route(
+            {
+              origin: originLocation,
+              destination: dest, //"51.51116061,-0.098394436",
+              travelMode: activity,
+            },
+            (directionsResult, directionsStatus) => {
+              if (directionsStatus === "OK") {
+                // renderer.setDirections(directionsResult);
+                // renderer.sendMap(map)
+                directionsRenderer.setDirections(directionsResult);
+                // map.mapOptions("dragable");
+                directionsRenderer.setMap(map);
+              }
+              // console.log(directionsResult);
+              // console.log(directionsStatus);
+            }
+          );
+        } else {
+          renderer.resetState();
+        }
+        p = !p;
+      };
       element.onclick = async function (event) {
         renderer.setAnimationLoop("null");
         if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
@@ -137,6 +199,7 @@ export default {
             if (mapOptions.tilt < 67.5) {
               mapOptions.tilt += 0.5;
             } else {
+              renderer.setAnimationLoop(null);
             }
           });
         };
@@ -203,6 +266,8 @@ export default {
           );
           this.formValues.Altitude = alt * 2.7;
           mapOptions.altitude = this.formValues.Altitude;
+          myLocation.lat = this.formValues.Latitude;
+          myLocation.lng = this.formValues.Longitude;
         },
         (error) => {
           console.log(error.message);
@@ -254,29 +319,60 @@ export default {
         class="form-control"
         id="name"
         placeholder="Name(optional)"
-        v-model="formValues.Timestamp"
+        v-model="formValues.Identifier"
       />
     </div>
-    <!-- <div class="form-group">
-    <input type="text" class="form-control" required id="time" placeholder="Time passed" v-model.number="formValues.time">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="floor" placeholder="Floor (optional)" v-model.number="formValues.floor">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" required id="horizontalAcc" placeholder="Horizontal accuracy" v-model.number="formValues.horizontalAcc">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" required id="verticalAcc" placeholder="Vertical accuracy" v-model.number="formValues.verticalAcc">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="activity" placeholder="Activity (optional)" v-model="formValues.activity">
-  </div> -->
-    <!-- checkgu -->
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        id="time"
+        placeholder="Time passed"
+        v-model.number="formValues.Timestamp"
+      />
+    </div>
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        id="floor"
+        placeholder="Floor (optional)"
+        v-model.number="formValues['Floor label']"
+      />
+    </div>
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        id="horizontalAcc"
+        placeholder="Horizontal accuracy"
+        v-model.number="formValues['Horizontal accuracy']"
+      />
+    </div>
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        id="verticalAcc"
+        placeholder="Vertical accuracy"
+        v-model.number="formValues['Vertical accuracy']"
+      />
+    </div>
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        id="activity"
+        placeholder="Activity (optional)"
+        v-model="formValues.Activity"
+      />
+    </div>
+
     <div class="form-group">
       <button
         type="submit"
         class="btn btn-primary"
+        id="find"
         @click.prevent="findLocation()"
       >
         Find location
@@ -286,13 +382,14 @@ export default {
       </button>
     </div>
   </form>
+  <button id="path" class="btn btn-primary">Path</button>
 </template>
 
 <style scoped>
 .map-size {
   height: 90%;
   /* width: 200px; */
-  background-color: 9cc0f9;
+  background-color: #9cc0f9;
 }
 #fixed {
   position: fixed;
@@ -310,5 +407,10 @@ export default {
 }
 .form-group {
   margin: 8px 2px;
+}
+#path {
+  position: fixed;
+  left: 20px;
+  top: 635px;
 }
 </style>
