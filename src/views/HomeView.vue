@@ -119,14 +119,12 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div id="map-home" class="size"></div>
-  </div>
+  <div id="map-home" class="size"></div>
 </template>
 
 <style scoped>
 .size {
-  height: 600px;
+  height: 100%;
   /* width: 200px; */
   background-color: aqua;
 }

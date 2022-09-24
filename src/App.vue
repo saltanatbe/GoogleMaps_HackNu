@@ -38,7 +38,12 @@ import { RouterLink, RouterView } from "vue-router";
       </div>
     </div>
   </nav>
-  <RouterView />
+  <RouterView class="content" />
 </template>
 
-<style scoped></style>
+<style scoped>
+.content {
+  height: 100%;
+  width: 100%;
+}
+</style>
