@@ -4,6 +4,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
+import  Metadata  from "@/views/components/Metadata.vue";
+
 
 console.log("====================================");
 console.log("in about view");
@@ -123,18 +125,18 @@ export default {
         let start = data.list[index].Timestamp;
 
         loader.manager.onLoad = () => {
-          let value = true;
-          map.addListener("click", (event) => {
-            if (value) {
-              renderer.setAnimationLoop(null);
-            } else {
-              // mapOptions.heading =
-              console.log(camera);
-              console.log(camera.getView);
-              renderer.setAnimationLoop(() => animationOptions());
-            }
-            value = !value;
-          });
+          // let value = true;
+          // map.addListener("click", (event) => {
+          //   if (value) {
+          //     renderer.setAnimationLoop(null);
+          //   } else {
+          //     // mapOptions.heading =
+          //     console.log(camera);
+          //     console.log(camera.getView);
+          //     renderer.setAnimationLoop(() => animationOptions());
+          //   }
+          //   value = !value;
+          // });
 
           // map.addListener("click", (event) => {
           //   renderer.setAnimationLoop(() => animationOptions());
@@ -195,6 +197,7 @@ export default {
 
     createMap()
   },
+  components: { Metadata }
 };
 
 
@@ -202,6 +205,7 @@ export default {
 
 <template>
   <div id="map-predef" class="map-size"></div>
+  <!-- <Metadata :formValues="data.list[index]"></Metadata> -->
 </template>
 
 <style scoped>
