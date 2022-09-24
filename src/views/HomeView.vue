@@ -12,6 +12,10 @@ const apiOptions = {
   version: "beta",
 };
 
+let map = null;
+
+
+
 const mapOptions = {
   tilt: 0,
   heading: 0,
@@ -23,6 +27,18 @@ const mapOptions = {
   altitude: data.list[index].Altitude,
   mapId: "e1b4d53499a2fa30",
 };
+const mapOptionsDark = {
+  tilt: 0,
+  heading: 0,
+  zoom: 18,
+  center: {
+    lat: data.list[index].Latitude,
+    lng: data.list[index].Longitude,
+  },
+  altitude: data.list[index].Altitude,
+  mapId: "580dbb52dcccde5e",
+};
+
 
 export default {
   beforeUnmount() {
@@ -30,11 +46,21 @@ export default {
     console.log(document.getElementById("map-home"));
   },
   mounted() {
-    async function initMap() {
+    var element = document.getElementById("nightMode");
+    element.onclick = async function(event) {
+      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+      else element.innerHTML = "Night Mode";
+      useMapStore().setNightMode();
+      map = await initMap(useMapStore().nightMode);
+      initWebGLOverlayView(map);
+    }
+
+    async function initMap(isNight) {
       const mapDiv = document.getElementById("map-home");
       const apiLoader = new Loader(apiOptions);
       await apiLoader.load();
-      return new google.maps.Map(mapDiv, mapOptions);
+      if (!isNight) return new google.maps.Map(mapDiv, mapOptions);
+      else return new google.maps.Map(mapDiv, mapOptionsDark)
     }
 
     function initWebGLOverlayView(map) {
@@ -92,32 +118,34 @@ export default {
 
         loader.manager.onLoad = () => {
           renderer.setAnimationLoop(() => {
-            start += 1000;
-            // console.log(start, data.list[index + 1].Timestamp);
-            if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
-              index += 1;
-              if (index == data.list.length - 1) {
-                index = 0;
-                start = data.list[index].Timestamp;
-              }
-            }
-            mapOptions.center.lat = data.list[index].Latitude;
-            mapOptions.center.lng = data.list[index].Longitude;
-            mapOptions.altitude = data.list[index].Altitude;
+            // start += 1000;
+            // // console.log(start, data.list[index + 1].Timestamp);
+            // if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
+            //   index += 1;
+            //   if (index == data.list.length - 1) {
+            //     index = 0;
+            //     start = data.list[index].Timestamp;
+            //   }
+            // }
+            // mapOptions.center.lat = data.list[index].Latitude;
+            // mapOptions.center.lng = data.list[index].Longitude;
+            // mapOptions.altitude = data.list[index].Altitude;
+
+            console.log("MAPOPTIONSBOOOOOOOm" + mapOptions.center.lat);
 
             // camera move
-            // map.moveCamera({
-            //   // tilt: mapOptions.tilt,
-            //   // heading: mapOptions.heading,
-            //   // zoom: mapOptions.zoom,
-            //   // center: {
-            //   //   lat: mapOptions.center.lat,
-            //   //   lng: mapOptions.center.lng,
-            //   // },
-            // });
-            // if (mapOptions.tilt < 67.5) {
-            //   mapOptions.tilt += 0.5;
-            // }
+            map.moveCamera({
+              tilt: mapOptions.tilt,
+              heading: mapOptions.heading,
+              zoom: mapOptions.zoom,
+              center: {
+                lat: mapOptions.center.lat,
+                lng: mapOptions.center.lng,
+              },
+            });
+            if (mapOptions.tilt < 67.5) {
+              mapOptions.tilt += 0.5;
+            }
           });
         };
       };
@@ -137,25 +165,41 @@ export default {
       };
       webGLOverlayView.setMap(map);
     }
-    (async () => {
-      let map = await initMap();
+    async function createMap() {
+      map = await initMap(useMapStore().nightMode);
       initWebGLOverlayView(map);
-    })();
+    }
+
+    createMap()
   },
+  
+  
   data(){
     return {
       formValues: {
-        lat: null,
-        lng: null,
-        alt: null,
+        lat: data.list[index].Latitude,
+        lng: data.list[index].Longitude,
+        alt: data.list[index].Altitude,
         name: "",
         time: null,
         floor: null,
         horizontalAcc: null,
         verticalAcc: null,
-        confidence: null,
         activity: ""
+      },
+      
+    }
+  },
+  methods: {
+    findLocation(){
+      mapOptions.center = {
+        lat: this.formValues.lat,
+        lng: this.formValues.lng,
       }
+      console.log("AAAAAAAAAAAAAAAAAa ");
+      mapOptions.altitude = this.formValues.alt
+      // alert("VVVVVVVVVVVVVVVV")
+     
     }
   }
 };
@@ -163,39 +207,43 @@ export default {
 
 <template>
   <div id="map-home" ref="homeMap" class="map-size"></div>
+  <div style="background: white; width: 300px;">
+      <pre>
+        {{ JSON.stringify(formValues, null, 2) }}
+      </pre>
+    </div>
   <form id="fixed">
   <div class="form-group">
-    <input type="number" class="form-control border-4"  required id="lat" placeholder="Enter latitude" v-model="formValues.lat">
+    <input type="text" class="form-control border-4"  required id="lat" placeholder="Latitude" v-model.number.lazy="formValues.lat">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="lng" placeholder="Enter longtitude" v-model="formValues.lng">
+    <input type="text" class="form-control" required id="lng" placeholder="Longtitude" v-model.number="formValues.lng">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="alt" placeholder="Enter altitude" v-model="formValues.alt">
+    <input type="text" class="form-control" required id="alt" placeholder="Altitude" v-model.number="formValues.alt">
   </div>
   <div class="form-group">
-    <input type="text" class="form-control" id="name" placeholder="Enter name(optional)" v-model="formValues.name">
+    <input type="text" class="form-control" id="name" placeholder="Name(optional)" v-model="formValues.name">
+  </div>
+  <!-- <div class="form-group">
+    <input type="text" class="form-control" required id="time" placeholder="Time passed" v-model.number="formValues.time">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="time" placeholder="Enter time" v-model="formValues.time">
+    <input type="text" class="form-control" id="floor" placeholder="Floor (optional)" v-model.number="formValues.floor">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" id="floor" placeholder="Enter floor (optional)" v-model="formValues.floor">
+    <input type="text" class="form-control" required id="horizontalAcc" placeholder="Horizontal accuracy" v-model.number="formValues.horizontalAcc">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="horizontalAcc" placeholder="Enter horizontal accuracy" v-model="formValues.horizontalAcc">
+    <input type="text" class="form-control" required id="verticalAcc" placeholder="Vertical accuracy" v-model.number="formValues.verticalAcc">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="verticalAcc" placeholder="Enter vertical accuracy" v-model="formValues.verticalAcc">
-  </div>
+    <input type="text" class="form-control" id="activity" placeholder="Activity (optional)" v-model="formValues.activity">
+  </div> -->
   <div class="form-group">
-    <input type="number" class="form-control" required id="confidence" placeholder="Enter confidence" v-model="formValues.confidence">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="activity" placeholder="Enter activity (optional)" v-model="formValues.activity">
-  </div>
-  <button type="submit" class="btn btn-primary">Find location</button>
+  <button type="submit" class="btn btn-primary" @click.prevent="findLocation()">Find location</button></div>
 </form>
+
 </template>
 
 <style scoped>
@@ -206,9 +254,9 @@ export default {
 }
 #fixed{
   position: fixed;
-  top: 130px;
+  top: 135px;
   left: 10px;
-  width: 300px;
+  width: 20%;
   box-sizing: border-box;
   padding: 5px;
   border: solid 2px white;
@@ -216,7 +264,12 @@ export default {
   background:  rgba(255,255,255,0.7);/* Green background with 30% opacity */
 }
 .form-control{
-  border-width: 3px;
+  border-width: 2px;
 }
+.form-group{
+  margin: 8px 2px;
+}
+
+
 
 </style>
