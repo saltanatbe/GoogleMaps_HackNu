@@ -166,9 +166,7 @@ export default {
 </script>
 
 <template>
-  <input type="checkbox" @click="changeTheme" v-model="nightMode">  
   <div id="map-predef" class="map-size"></div>
-          
 </template>
 
 <style scoped>
