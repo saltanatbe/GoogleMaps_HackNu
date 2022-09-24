@@ -118,32 +118,34 @@ export default {
 
         loader.manager.onLoad = () => {
           renderer.setAnimationLoop(() => {
-            start += 1000;
-            // console.log(start, data.list[index + 1].Timestamp);
-            if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
-              index += 1;
-              if (index == data.list.length - 1) {
-                index = 0;
-                start = data.list[index].Timestamp;
-              }
-            }
-            mapOptions.center.lat = data.list[index].Latitude;
-            mapOptions.center.lng = data.list[index].Longitude;
-            mapOptions.altitude = data.list[index].Altitude;
+            // start += 1000;
+            // // console.log(start, data.list[index + 1].Timestamp);
+            // if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
+            //   index += 1;
+            //   if (index == data.list.length - 1) {
+            //     index = 0;
+            //     start = data.list[index].Timestamp;
+            //   }
+            // }
+            // mapOptions.center.lat = data.list[index].Latitude;
+            // mapOptions.center.lng = data.list[index].Longitude;
+            // mapOptions.altitude = data.list[index].Altitude;
+
+            console.log("MAPOPTIONSBOOOOOOOm" + mapOptions.center.lat);
 
             // camera move
-            // map.moveCamera({
-            //   // tilt: mapOptions.tilt,
-            //   // heading: mapOptions.heading,
-            //   // zoom: mapOptions.zoom,
-            //   // center: {
-            //   //   lat: mapOptions.center.lat,
-            //   //   lng: mapOptions.center.lng,
-            //   // },
-            // });
-            // if (mapOptions.tilt < 67.5) {
-            //   mapOptions.tilt += 0.5;
-            // }
+            map.moveCamera({
+              tilt: mapOptions.tilt,
+              heading: mapOptions.heading,
+              zoom: mapOptions.zoom,
+              center: {
+                lat: mapOptions.center.lat,
+                lng: mapOptions.center.lng,
+              },
+            });
+            if (mapOptions.tilt < 67.5) {
+              mapOptions.tilt += 0.5;
+            }
           });
         };
       };
@@ -170,20 +172,34 @@ export default {
 
     createMap()
   },
+  
+  
   data(){
     return {
       formValues: {
-        lat: null,
-        lng: null,
-        alt: null,
+        lat: data.list[index].Latitude,
+        lng: data.list[index].Longitude,
+        alt: data.list[index].Altitude,
         name: "",
         time: null,
         floor: null,
         horizontalAcc: null,
         verticalAcc: null,
-        confidence: null,
         activity: ""
+      },
+      
+    }
+  },
+  methods: {
+    findLocation(){
+      mapOptions.center = {
+        lat: this.formValues.lat,
+        lng: this.formValues.lng,
       }
+      console.log("AAAAAAAAAAAAAAAAAa ");
+      mapOptions.altitude = this.formValues.alt
+      // alert("VVVVVVVVVVVVVVVV")
+     
     }
   }
 };
@@ -191,39 +207,41 @@ export default {
 
 <template>
   <div id="map-home" ref="homeMap" class="map-size"></div>
+  <div style="background: white; width: 300px;">
+      <pre>
+        {{ JSON.stringify(formValues, null, 2) }}
+      </pre>
+    </div>
   <form id="fixed">
   <div class="form-group">
-    <input type="number" class="form-control border-4"  required id="lat" placeholder="Latitude" v-model="formValues.lat">
+    <input type="text" class="form-control border-4"  required id="lat" placeholder="Latitude" v-model.number.lazy="formValues.lat">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="lng" placeholder="Longtitude" v-model="formValues.lng">
+    <input type="text" class="form-control" required id="lng" placeholder="Longtitude" v-model.number="formValues.lng">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="alt" placeholder="Altitude" v-model="formValues.alt">
+    <input type="text" class="form-control" required id="alt" placeholder="Altitude" v-model.number="formValues.alt">
   </div>
   <div class="form-group">
     <input type="text" class="form-control" id="name" placeholder="Name(optional)" v-model="formValues.name">
   </div>
-  <div class="form-group">
-    <input type="number" class="form-control" required id="time" placeholder="Time passed" v-model="formValues.time">
+  <!-- <div class="form-group">
+    <input type="text" class="form-control" required id="time" placeholder="Time passed" v-model.number="formValues.time">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" id="floor" placeholder="Floor (optional)" v-model="formValues.floor">
+    <input type="text" class="form-control" id="floor" placeholder="Floor (optional)" v-model.number="formValues.floor">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="horizontalAcc" placeholder="Horizontal accuracy" v-model="formValues.horizontalAcc">
+    <input type="text" class="form-control" required id="horizontalAcc" placeholder="Horizontal accuracy" v-model.number="formValues.horizontalAcc">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="verticalAcc" placeholder="Vertical accuracy" v-model="formValues.verticalAcc">
-  </div>
-  <div class="form-group">
-    <input type="number" class="form-control" required id="confidence" placeholder="Confidence" v-model="formValues.confidence">
+    <input type="text" class="form-control" required id="verticalAcc" placeholder="Vertical accuracy" v-model.number="formValues.verticalAcc">
   </div>
   <div class="form-group">
     <input type="text" class="form-control" id="activity" placeholder="Activity (optional)" v-model="formValues.activity">
-  </div>
+  </div> -->
   <div class="form-group">
-  <button type="submit" class="btn btn-primary">Find location</button></div>
+  <button type="submit" class="btn btn-primary" @click.prevent="findLocation()">Find location</button></div>
 </form>
 
 </template>
