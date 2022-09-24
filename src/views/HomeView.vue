@@ -51,6 +51,28 @@ export default {
         scene.add(ambientLight);
         scene.add(directionalLight);
 
+        // ----cylinder -----
+        const geometry = new THREE.CylinderGeometry(40, 40, 20, 50);
+        const material = new THREE.MeshBasicMaterial({
+          color: 0x4184f0,
+          opacity: 0.5,
+          transparent: true,
+        });
+        const cylinder = new THREE.Mesh(geometry, material);
+        cylinder.rotateX(1.57);
+
+        scene.add(cylinder);
+        //-------------------
+        const geometry2 = new THREE.CylinderGeometry(40, 40, 20, 50);
+        const edges = new THREE.EdgesGeometry(geometry2);
+        const line = new THREE.LineSegments(
+          edges,
+          new THREE.LineBasicMaterial({ color: 0x4184f0 })
+        );
+        line.rotateX(1.57);
+        scene.add(line);
+        //-------------------
+
         loader = new GLTFLoader();
         loader.load("dot.gltf", (gltf) => {
           gltf.scene.scale.set(5, 5, 5);
@@ -82,18 +104,19 @@ export default {
             mapOptions.center.lat = data.list[index].Latitude;
             mapOptions.center.lng = data.list[index].Longitude;
             mapOptions.altitude = data.list[index].Altitude;
-            // from tutorial
+
+            // camera move
             // map.moveCamera({
-            //   tilt: mapOptions.tilt,
-            //   heading: mapOptions.heading,
-            //   zoom: mapOptions.zoom,
+            //   // tilt: mapOptions.tilt,
+            //   // heading: mapOptions.heading,
+            //   // zoom: mapOptions.zoom,
+            //   // center: {
+            //   //   lat: mapOptions.center.lat,
+            //   //   lng: mapOptions.center.lng,
+            //   // },
             // });
             // if (mapOptions.tilt < 67.5) {
             //   mapOptions.tilt += 0.5;
-            // } else if (mapOptions.heading <= 360) {
-            //   mapOptions.heading += 0.2;
-            // } else {
-            //   renderer.setAnimationLoop(null);
             // }
           });
         };
