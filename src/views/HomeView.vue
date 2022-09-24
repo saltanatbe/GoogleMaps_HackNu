@@ -194,9 +194,9 @@ export default {
   <div id="map-home" ref="homeMap" class="map-size"></div>
   <Metadata :formValues="formValues"></Metadata>
   <div style="background: white; width: 300px;">
-      <pre>
+      <!-- <pre>
         {{ JSON.stringify(formValues, null, 2) }}
-      </pre>
+      </pre> -->
     </div>
   <form id="fixed">
   <div class="form-group">
@@ -210,7 +210,7 @@ export default {
     <input type="text" class="form-control" required id="alt" placeholder="Altitude" v-model.number="formValues.Altitude">
   </div>
   <div class="form-group">
-    <input type="text" class="form-control" id="name" placeholder="Name(optional)" v-model="formValues.Timestamp">
+    <input type="text" class="form-control" id="name" placeholder="Name(optional)" v-model="formValues.Identifier">
   </div>
   <!-- <div class="form-group">
     <input type="text" class="form-control" required id="time" placeholder="Time passed" v-model.number="formValues.time">
