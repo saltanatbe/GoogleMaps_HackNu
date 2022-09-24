@@ -206,7 +206,7 @@ export default {
 
 <template>
   <div id="map-predef" class="map-size"></div>
-  <Metadata :formValues="formValues"></Metadata>
+  <!-- <Metadata :formValues="data.list[index]"></Metadata> -->
 </template>
 
 <style scoped>
