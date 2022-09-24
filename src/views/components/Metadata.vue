@@ -21,6 +21,7 @@
         <p class="text-left">Latitude: {{formValues.Latitude}}</p>
         <p class="text-left">Longitude: {{formValues.Longitude}}</p>
         <p class="text-left">Altitude: {{formValues.Altitude}}</p>
+        
       </div>
     </template>
     
@@ -31,7 +32,7 @@
         right: 10px; 
         width: 250px;
         box-sizing: border-box; 
-        padding: 5px;
+        padding: 10px;
         border: solid 2px white;
         border-radius: 6px;
         background:  rgba(255,255,255,0.9); /* Green background with 30% opacity */
