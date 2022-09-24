@@ -6,8 +6,6 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
 import Metadata from "./components/Metadata.vue";
 
-let index = 0;
-
 const apiOptions = {
   apiKey: "AIzaSyAues8dw_usefVuVYKfmGAmPmBvPBqmCgY",
   version: "beta",
@@ -15,39 +13,35 @@ const apiOptions = {
 
 var p = false;
 let map = null;
-
 const mapOptions = {
   draggable: false,
   tilt: 0,
   heading: 0,
-  zoom: 18,
+  zoom: 19,
   center: {
-    lat: data.list[index].Latitude,
-    lng: data.list[index].Longitude,
+    lat: data.list[0][0].Latitude,
+    lng: data.list[0][0].Longitude,
   },
-  altitude: data.list[index].Altitude,
+  altitude: data.list[0][0].Altitude,
   mapId: "e1b4d53499a2fa30",
 };
 const mapOptionsDark = {
   tilt: 0,
   heading: 0,
-  zoom: 18,
+  zoom: 19,
   center: {
-    lat: data.list[index].Latitude,
-    lng: data.list[index].Longitude,
+    lat: data.list[0][0].Latitude,
+    lng: data.list[0][0].Longitude,
   },
-  altitude: data.list[index].Altitude,
+  altitude: data.list[0][0].Altitude,
   mapId: "580dbb52dcccde5e",
 };
-
 export default {
   beforeUnmount() {
-
     document.getElementById("map-home").innerHTML = "";
     // console.log(document.getElementById("map-home"));
   },
   mounted() {
-    
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-home");
       const apiLoader = new Loader(apiOptions);
@@ -55,11 +49,19 @@ export default {
       if (!isNight) return new google.maps.Map(mapDiv, mapOptions);
       else return new google.maps.Map(mapDiv, mapOptionsDark);
     }
-    
+
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
       var element = document.getElementById("nightMode");
-    var button = document.getElementById("path");
+      element.onclick = async function (event) {
+        renderer.setAnimationLoop("null");
+        if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+        else element.innerHTML = "Night Mode";
+        useMapStore().setNightMode();
+        map = await initMap(useMapStore().nightMode);
+        initWebGLOverlayView(map);
+      };
+      var button = document.getElementById("path");
 
       button.onclick = async function (event) {
         if (p == false) {
@@ -70,8 +72,8 @@ export default {
           directionsService.route(
             {
               origin: "51.50843075,-0.098585086",
-              destination: dest,//"51.51116061,-0.098394436",
-              travelMode: activity
+              destination: dest, //"51.51116061,-0.098394436",
+              travelMode: activity,
             },
             (directionsResult, directionsStatus) => {
               if (directionsStatus === "OK") {
@@ -83,22 +85,20 @@ export default {
               // console.log(directionsResult);
               // console.log(directionsStatus);
             }
-
           );
-          
         } else {
           renderer.resetState();
         }
         p = !p;
-      }
-    element.onclick = async function (event) {
-      renderer.setAnimationLoop("null");
-      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
-      else element.innerHTML = "Night Mode";
-      useMapStore().setNightMode();
-      map = await initMap(useMapStore().nightMode);
-      initWebGLOverlayView(map);
-    };
+      };
+      element.onclick = async function (event) {
+        renderer.setAnimationLoop("null");
+        if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+        else element.innerHTML = "Night Mode";
+        useMapStore().setNightMode();
+        map = await initMap(useMapStore().nightMode);
+        initWebGLOverlayView(map);
+      };
       const webGLOverlayView = new google.maps.WebGLOverlayView();
       webGLOverlayView.onAdd = () => {
         scene = new THREE.Scene();
@@ -109,7 +109,12 @@ export default {
         scene.add(ambientLight);
         scene.add(directionalLight);
         // ----cylinder -----
-        const geometry = new THREE.CylinderGeometry(40, 40, 20, 50);
+        const geometry = new THREE.CylinderGeometry(
+          data.list[0][0]["Horizontal accuracy"],
+          data.list[0][0]["Horizontal accuracy"],
+          data.list[0][0]["Vertical accuracy"],
+          50
+        );
         const material = new THREE.MeshBasicMaterial({
           color: 4293872,
           opacity: 0.5,
@@ -119,7 +124,12 @@ export default {
         cylinder.rotateX(1.57);
         scene.add(cylinder);
         //-------------------
-        const geometry2 = new THREE.CylinderGeometry(40, 40, 20, 50);
+        const geometry2 = new THREE.CylinderGeometry(
+          data.list[0][0]["Horizontal accuracy"],
+          data.list[0][0]["Horizontal accuracy"],
+          data.list[0][0]["Vertical accuracy"],
+          50
+        );
         const edges = new THREE.EdgesGeometry(geometry2);
         const line = new THREE.LineSegments(
           edges,
@@ -130,7 +140,7 @@ export default {
         //-------------------
         loader = new GLTFLoader();
         loader.load("dot.gltf", (gltf) => {
-          gltf.scene.scale.set(5, 5, 5);
+          gltf.scene.scale.set(1, 1, 1);
           gltf.scene.rotation.x = (180 * Math.PI) / 180;
           scene.add(gltf.scene);
         });
@@ -142,22 +152,26 @@ export default {
           ...gl.getContextAttributes(),
         });
         renderer.autoClear = false;
-        let start = data.list[index].Timestamp;
+        let start = data.list[0][0].Timestamp;
         loader.manager.onLoad = () => {
+          function createShallow() {
+            const geometry = new THREE.CylinderGeometry(
+              data.list[0][0]["Horizontal accuracy"],
+              data.list[0][0]["Horizontal accuracy"],
+              data.list[0][0]["Vertical accuracy"],
+              50
+            );
+            const material = new THREE.MeshBasicMaterial({
+              color: 0x4184f0,
+              opacity: 0.5,
+              transparent: true,
+            });
+            const cylinder = new THREE.Mesh(geometry, material);
+            cylinder.rotateX(1.57);
+            scene.add(cylinder);
+          }
           renderer.setAnimationLoop(() => {
-            // start += 1000;
-            // // console.log(start, data.list[index + 1].Timestamp);
-            // if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
-            //   index += 1;
-            //   if (index == data.list.length - 1) {
-            //     index = 0;
-            //     start = data.list[index].Timestamp;
-            //   }
-            // }
-            // mapOptions.center.lat = data.list[index].Latitude;
-            // mapOptions.center.lng = data.list[index].Longitude;
-            // mapOptions.altitude = data.list[index].Altitude;
-            // camera move
+            createShallow();
             map.moveCamera({
               tilt: mapOptions.tilt,
               heading: mapOptions.heading,
@@ -198,9 +212,9 @@ export default {
   data() {
     return {
       formValues: {
-        Latitude: data.list[index].Latitude,
-        Longitude: data.list[index].Longitude,
-        Altitude: data.list[index].Altitude,
+        Latitude: data.list[0][0].Latitude,
+        Longitude: data.list[0][0].Longitude,
+        Altitude: data.list[0][0].Altitude,
         Identifier: "",
         Timestamp: null,
         "Floor label": null,
@@ -217,7 +231,6 @@ export default {
         lng: this.formValues.Longitude,
       };
       mapOptions.altitude = this.formValues.Altitude;
-      webGLOverlayView.setMap(map);
     },
   },
   components: { Metadata },
@@ -225,42 +238,111 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div class="container90">
     <div id="map-home" ref="homeMap" class="map-size"></div>
-    
+
     <Metadata :formValues="formValues"></Metadata>
 
-  <form id="fixed">
-    <div class="form-group">
-    <input type="text" class="form-control border-4"  required id="lat" placeholder="Latitude" v-model.number.lazy="formValues.Latitude
-    ">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" required id="lng" placeholder="Longtitude" v-model.number="formValues.Longitude">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" required id="alt" placeholder="Altitude" v-model.number="formValues.Altitude">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="name" placeholder="Name(optional)" v-model="formValues.Identifier">
-  </div>
-   <div class="form-group">
-    <input type="text" class="form-control" required id="time" placeholder="Time passed" v-model.number="formValues.Timestamp">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="floor" placeholder="Floor (optional)" v-model.number='formValues["Floor label"]'>
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" required id="horizontalAcc" placeholder="Horizontal accuracy" v-model.number='formValues["Horizontal accuracy"]'>
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" required id="verticalAcc" placeholder="Vertical accuracy" v-model.number='formValues["Vertical accuracy"]'>
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="activity" placeholder="Activity (optional)" v-model="formValues.Activity">
-  </div> 
-      
-  <div class="form-group">
+    <form id="fixed">
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control border-4"
+          required
+          id="lat"
+          placeholder="Latitude"
+          v-model.number.lazy="formValues.Latitude"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          required
+          id="lng"
+          placeholder="Longtitude"
+          v-model.number="formValues.Longitude"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          required
+          id="alt"
+          placeholder="Altitude"
+          v-model.number="formValues.Altitude"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          id="name"
+          placeholder="Name(optional)"
+          v-model="formValues.Identifier"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          required
+          id="time"
+          placeholder="Time passed"
+          v-model.number="formValues.Timestamp"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          id="floor"
+          placeholder="Floor (optional)"
+          v-model.number="formValues['Floor label']"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          required
+          id="horizontalAcc"
+          placeholder="Horizontal accuracy"
+          v-model.number="formValues['Horizontal accuracy']"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          required
+          id="verticalAcc"
+          placeholder="Vertical accuracy"
+          v-model.number="formValues['Vertical accuracy']"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          id="activity"
+          placeholder="Activity (optional)"
+          v-model="formValues.activity"
+        />
+      </div>
+      <!-- checkgu -->
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          id="activity"
+          placeholder="Activity (optional)"
+          v-model="formValues.Activity"
+        />
+      </div>
+
+      <div class="form-group">
         <button
           type="submit"
           class="btn btn-primary"
@@ -268,18 +350,18 @@ export default {
         >
           Find location
         </button>
-        
       </div>
     </form>
-      <button id="path" class="btn btn-primary">
-          Path
-      </button>
-    </div>
+    <button id="path" class="btn btn-primary">Path</button>
+  </div>
 </template>
 
 <style scoped>
-.map-size {
+.container90 {
   height: 90%;
+}
+.map-size {
+  height: 100%;
   /* width: 200px; */
   background-color: #9cc0f9;
 }
@@ -294,15 +376,15 @@ export default {
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.7); /* Green background with 30% opacity */
 }
-.form-control  {
+.form-control {
   border-width: 2px;
 }
-.form-group  {
+.form-group {
   margin: 8px 2px;
 }
-#path{
-  position:fixed;
-  left:20px;
+#path {
+  position: fixed;
+  left: 20px;
   top: 635px;
 }
 </style>
