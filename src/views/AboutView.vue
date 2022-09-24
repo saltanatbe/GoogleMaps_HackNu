@@ -50,8 +50,7 @@ export default {
       if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
       else element.innerHTML = "Night Mode";
       useMapStore().setNightMode();
-      map = await initMap(useMapStore().nightMode);
-      initWebGLOverlayView(map);
+      createMap(useMapStore().nightMode);
     }
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-predef");

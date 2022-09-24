@@ -51,8 +51,7 @@ export default {
       if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
       else element.innerHTML = "Night Mode";
       useMapStore().setNightMode();
-      map = await initMap(useMapStore().nightMode);
-      initWebGLOverlayView(map);
+      createMap(useMapStore().nightMode);
     }
 
     async function initMap(isNight) {
@@ -118,18 +117,18 @@ export default {
 
         loader.manager.onLoad = () => {
           renderer.setAnimationLoop(() => {
-            // start += 1000;
-            // // console.log(start, data.list[index + 1].Timestamp);
-            // if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
-            //   index += 1;
-            //   if (index == data.list.length - 1) {
-            //     index = 0;
-            //     start = data.list[index].Timestamp;
-            //   }
-            // }
-            // mapOptions.center.lat = data.list[index].Latitude;
-            // mapOptions.center.lng = data.list[index].Longitude;
-            // mapOptions.altitude = data.list[index].Altitude;
+            start += 1000;
+            // console.log(start, data.list[index + 1].Timestamp);
+            if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
+              index += 1;
+              if (index == data.list.length - 1) {
+                index = 0;
+                start = data.list[index].Timestamp;
+              }
+            }
+            mapOptions.center.lat = data.list[index].Latitude;
+            mapOptions.center.lng = data.list[index].Longitude;
+            mapOptions.altitude = data.list[index].Altitude;
 
             console.log("MAPOPTIONSBOOOOOOOm" + mapOptions.center.lat);
 
