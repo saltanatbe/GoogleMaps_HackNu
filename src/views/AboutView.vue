@@ -17,7 +17,7 @@ const apiOptions = {
 const mapOptions = {
   tilt: 0,
   heading: 0,
-  zoom: 20,
+  zoom: 18,
   center: {
     lat: data.list[historyIndex][actionIndex].Latitude,
     lng: data.list[historyIndex][actionIndex].Longitude,
@@ -29,7 +29,7 @@ const mapOptions = {
 const mapOptionsDark = {
   tilt: 0,
   heading: 0,
-  zoom: 20,
+  zoom: 18,
   center: {
     lat: data.list[historyIndex][actionIndex].Latitude,
     lng: data.list[historyIndex][actionIndex].Longitude,
@@ -54,13 +54,7 @@ export default {
     let vue = this;
 
     var element = document.getElementById("nightMode");
-    element.onclick = async function (event) {
-      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
-      else element.innerHTML = "Night Mode";
-      useMapStore().setNightMode();
-      map = await initMap(useMapStore().nightMode);
-      initWebGLOverlayView(map);
-    };
+
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-predef");
       const apiLoader = new Loader(apiOptions);
@@ -72,7 +66,14 @@ export default {
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
       const webGLOverlayView = new google.maps.WebGLOverlayView();
+      element.onclick = async function (event) {
+        if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+        else element.innerHTML = "Night Mode";
+        useMapStore().setNightMode();
+        map = await initMap(useMapStore().nightMode);
 
+        webGLOverlayView.setMap(map);
+      };
       webGLOverlayView.onAdd = () => {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera();
@@ -189,7 +190,6 @@ export default {
             // console.log(historyIndex, actionIndex);
             if (vue.actionIndex >= data.list[vue.historyIndex].length) {
             } else {
-              let
               if (
                 data.list[vue.historyIndex].length > 1 &&
                 start >=
@@ -223,10 +223,11 @@ export default {
                   lng: mapOptions.center.lng,
                 },
               });
-              if (mapOptions.tilt < 67.5) {
+              if (mapOptions.tilt < 50.5) {
                 mapOptions.tilt += 0.5;
               }
             }
+            // from tutorial
           }
           renderer.setAnimationLoop(() => animationOptions());
         };
@@ -262,6 +263,7 @@ export default {
       this.actionIndex = 0;
     },
   },
+  components: { Metadata },
 };
 </script>
 
