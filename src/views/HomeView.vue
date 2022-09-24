@@ -194,8 +194,10 @@ export default {
   <div class="form-group">
     <input type="text" class="form-control" id="activity" placeholder="Enter activity (optional)" v-model="formValues.activity">
   </div>
-  <button type="submit" class="btn btn-primary">Find location</button>
+  <div class="form-group">
+  <button type="submit" class="btn btn-primary">Find location</button></div>
 </form>
+
 </template>
 
 <style scoped>
@@ -206,9 +208,9 @@ export default {
 }
 #fixed{
   position: fixed;
-  top: 130px;
+  top: 135px;
   left: 10px;
-  width: 300px;
+  width: 20%;
   box-sizing: border-box;
   padding: 5px;
   border: solid 2px white;
@@ -216,7 +218,13 @@ export default {
   background:  rgba(255,255,255,0.7);/* Green background with 30% opacity */
 }
 .form-control{
-  border-width: 3px;
+  border-width: 2px;
 }
+.form-group{
+  margin: 8px 2px;
+  align-content: center;
+}
+
+
 
 </style>
