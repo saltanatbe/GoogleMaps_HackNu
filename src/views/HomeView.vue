@@ -14,8 +14,9 @@ const apiOptions = {
 };
 
 let map = null;
-
+// map.setOptions({ draggable: true });
 const mapOptions = {
+  draggable: false,
   tilt: 0,
   heading: 0,
   zoom: 18,
@@ -40,6 +41,7 @@ const mapOptionsDark = {
 
 export default {
   beforeUnmount() {
+
     document.getElementById("map-home").innerHTML = "";
     // console.log(document.getElementById("map-home"));
   },
@@ -58,6 +60,30 @@ export default {
       await apiLoader.load();
       if (!isNight) return new google.maps.Map(mapDiv, mapOptions);
       else return new google.maps.Map(mapDiv, mapOptionsDark);
+    }
+    var button = document.getElementById("path");
+    button.onclick = async function (event) {
+      const directionsService = new google.maps.DirectionsService();
+      const directionsRenderer = new google.maps.DirectionsRenderer();
+      const dest = mapOptions.center.lat + "," + mapOptions.center.lng;
+      directionsService.route(
+        {
+          origin: "51.50843075,-0.098585086",
+          destination: dest,//"51.51116061,-0.098394436",
+          travelMode: "DRIVING"
+        },
+        (directionsResult, directionsStatus) => {
+          if (directionsStatus === "OK") {
+            directionsRenderer.setDirections(directionsResult);
+            directionsRenderer.setMap(map);
+          }
+          console.log(directionsResult);
+          console.log(directionsStatus);
+        }
+      );
+      // const directionsRenderer = new google.maps.directionsRenderer({
+      //   map: map
+      // })
     }
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
@@ -132,7 +158,7 @@ export default {
             if (mapOptions.tilt < 67.5) {
               mapOptions.tilt += 0.5;
             } else {
-              map.setAnimationLoop(null);
+              renderer.setAnimationLoop(null);
             }
           });
         };
@@ -178,6 +204,7 @@ export default {
         lat: this.formValues.Latitude,
         lng: this.formValues.Longitude,
       };
+
       mapOptions.altitude = this.formValues.Altitude;
     },
   },
@@ -291,8 +318,12 @@ export default {
         >
           Find location
         </button>
+        
       </div>
     </form>
+    <button id="path">
+          Path
+        </button>
   </div>
 </template>
 
@@ -300,7 +331,7 @@ export default {
 .map-size {
   height: 90%;
   /* width: 200px; */
-  background-color: aqua;
+  background-color: 9cc0f9;
 }
 #fixed {
   position: fixed;
@@ -313,10 +344,15 @@ export default {
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.7); /* Green background with 30% opacity */
 }
-.form-control {
+.form-control  {
   border-width: 2px;
 }
-.form-group {
+.form-group  {
   margin: 8px 2px;
+}
+#path{
+  position:fixed;
+  left:10px;
+  top: 200px;
 }
 </style>
