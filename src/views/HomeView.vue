@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
+import Metadata from "./components/Metadata.vue";
 
 let index = 0;
 
@@ -13,8 +14,6 @@ const apiOptions = {
 };
 
 let map = null;
-
-
 
 const mapOptions = {
   tilt: 0,
@@ -39,65 +38,58 @@ const mapOptionsDark = {
   mapId: "580dbb52dcccde5e",
 };
 
-
 export default {
   beforeUnmount() {
     document.getElementById("map-home").innerHTML = "";
-    console.log(document.getElementById("map-home"));
+    // console.log(document.getElementById("map-home"));
   },
   mounted() {
     var element = document.getElementById("nightMode");
-    element.onclick = async function(event) {
+    element.onclick = async function (event) {
       if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
       else element.innerHTML = "Night Mode";
       useMapStore().setNightMode();
-      createMap(useMapStore().nightMode);
-    }
-
+      map = await initMap(useMapStore().nightMode);
+      initWebGLOverlayView(map);
+    };
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-home");
       const apiLoader = new Loader(apiOptions);
       await apiLoader.load();
       if (!isNight) return new google.maps.Map(mapDiv, mapOptions);
-      else return new google.maps.Map(mapDiv, mapOptionsDark)
+      else return new google.maps.Map(mapDiv, mapOptionsDark);
     }
-
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
       const webGLOverlayView = new google.maps.WebGLOverlayView();
-
       webGLOverlayView.onAdd = () => {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera();
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.25);
-
+        const ambientLight = new THREE.AmbientLight(16777215, 0.75);
+        const directionalLight = new THREE.DirectionalLight(16777215, 0.25);
         directionalLight.position.set(0.5, -1, 0.5);
         scene.add(ambientLight);
         scene.add(directionalLight);
-
         // ----cylinder -----
         const geometry = new THREE.CylinderGeometry(40, 40, 20, 50);
         const material = new THREE.MeshBasicMaterial({
-          color: 0x4184f0,
+          color: 4293872,
           opacity: 0.5,
           transparent: true,
         });
         const cylinder = new THREE.Mesh(geometry, material);
         cylinder.rotateX(1.57);
-
         scene.add(cylinder);
         //-------------------
         const geometry2 = new THREE.CylinderGeometry(40, 40, 20, 50);
         const edges = new THREE.EdgesGeometry(geometry2);
         const line = new THREE.LineSegments(
           edges,
-          new THREE.LineBasicMaterial({ color: 0x4184f0 })
+          new THREE.LineBasicMaterial({ color: 4293872 })
         );
         line.rotateX(1.57);
         scene.add(line);
         //-------------------
-
         loader = new GLTFLoader();
         loader.load("dot.gltf", (gltf) => {
           gltf.scene.scale.set(5, 5, 5);
@@ -112,26 +104,21 @@ export default {
           ...gl.getContextAttributes(),
         });
         renderer.autoClear = false;
-
         let start = data.list[index].Timestamp;
-
         loader.manager.onLoad = () => {
           renderer.setAnimationLoop(() => {
-            start += 1000;
-            // console.log(start, data.list[index + 1].Timestamp);
-            if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
-              index += 1;
-              if (index == data.list.length - 1) {
-                index = 0;
-                start = data.list[index].Timestamp;
-              }
-            }
-            mapOptions.center.lat = data.list[index].Latitude;
-            mapOptions.center.lng = data.list[index].Longitude;
-            mapOptions.altitude = data.list[index].Altitude;
-
-            console.log("MAPOPTIONSBOOOOOOOm" + mapOptions.center.lat);
-
+            // start += 1000;
+            // // console.log(start, data.list[index + 1].Timestamp);
+            // if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
+            //   index += 1;
+            //   if (index == data.list.length - 1) {
+            //     index = 0;
+            //     start = data.list[index].Timestamp;
+            //   }
+            // }
+            // mapOptions.center.lat = data.list[index].Latitude;
+            // mapOptions.center.lng = data.list[index].Longitude;
+            // mapOptions.altitude = data.list[index].Altitude;
             // camera move
             map.moveCamera({
               tilt: mapOptions.tilt,
@@ -144,6 +131,8 @@ export default {
             });
             if (mapOptions.tilt < 67.5) {
               mapOptions.tilt += 0.5;
+            } else {
+              map.setAnimationLoop(null);
             }
           });
         };
@@ -154,10 +143,8 @@ export default {
           lng: mapOptions.center.lng,
           altitude: mapOptions.altitude,
         };
-
         const matrix = transformer.fromLatLngAltitude(latLngAltitudeLiteral);
         camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
-
         webGLOverlayView.requestRedraw();
         renderer.render(scene, camera);
         renderer.resetState();
@@ -168,90 +155,154 @@ export default {
       map = await initMap(useMapStore().nightMode);
       initWebGLOverlayView(map);
     }
-
-    createMap()
+    createMap();
   },
-  
-  
-  data(){
+  data() {
     return {
       formValues: {
-        lat: data.list[index].Latitude,
-        lng: data.list[index].Longitude,
-        alt: data.list[index].Altitude,
-        name: "",
-        time: null,
-        floor: null,
-        horizontalAcc: null,
-        verticalAcc: null,
-        activity: ""
+        Latitude: data.list[index].Latitude,
+        Longitude: data.list[index].Longitude,
+        Altitude: data.list[index].Altitude,
+        Identifier: "",
+        Timestamp: null,
+        "Floor label": null,
+        "Horizontal accuracy": null,
+        "Vertical accuracy": null,
+        Activity: "",
       },
-      
-    }
+    };
   },
   methods: {
-    findLocation(){
+    findLocation() {
       mapOptions.center = {
-        lat: this.formValues.lat,
-        lng: this.formValues.lng,
-      }
-      console.log("AAAAAAAAAAAAAAAAAa ");
-      mapOptions.altitude = this.formValues.alt
-      // alert("VVVVVVVVVVVVVVVV")
-     
-    }
-  }
+        lat: this.formValues.Latitude,
+        lng: this.formValues.Longitude,
+      };
+      mapOptions.altitude = this.formValues.alt;
+    },
+  },
+  components: { Metadata },
 };
 </script>
 
 <template>
-  <div id="map-home" ref="homeMap" class="map-size"></div>
-  <div style="background: white; width: 300px;">
+  <div>
+    <div id="map-home" ref="homeMap" class="map-size"></div>
+    <Metadata :formValues="formValues"></Metadata>
+    <div style="background: white; width: 300px">
       <pre>
         {{ JSON.stringify(formValues, null, 2) }}
       </pre>
     </div>
-  <form id="fixed">
-  <div class="form-group">
-    <input type="text" class="form-control border-4"  required id="lat" placeholder="Latitude" v-model.number.lazy="formValues.lat">
+    <form id="fixed">
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control border-4"
+          required
+          id="lat"
+          placeholder="Latitude"
+          v-model.number.lazy="formValues.Latitude"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          required
+          id="lng"
+          placeholder="Longtitude"
+          v-model.number="formValues.Longitude"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          required
+          id="alt"
+          placeholder="Altitude"
+          v-model.number="formValues.Altitude"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          id="name"
+          placeholder="Name(optional)"
+          v-model="formValues.Timestamp"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          required
+          id="time"
+          placeholder="Time passed"
+          v-model.number="formValues.time"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          id="floor"
+          placeholder="Floor (optional)"
+          v-model.number="formValues.floor"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          required
+          id="horizontalAcc"
+          placeholder="Horizontal accuracy"
+          v-model.number="formValues.horizontalAcc"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          required
+          id="verticalAcc"
+          placeholder="Vertical accuracy"
+          v-model.number="formValues.verticalAcc"
+        />
+      </div>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          id="activity"
+          placeholder="Activity (optional)"
+          v-model="formValues.activity"
+        />
+      </div>
+      <!-- checkgu -->
+      <div class="form-group">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          @click.prevent="findLocation()"
+        >
+          Find location
+        </button>
+      </div>
+    </form>
   </div>
-  <div class="form-group">
-    <input type="text" class="form-control" required id="lng" placeholder="Longtitude" v-model.number="formValues.lng">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" required id="alt" placeholder="Altitude" v-model.number="formValues.alt">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="name" placeholder="Name(optional)" v-model="formValues.name">
-  </div>
-  <!-- <div class="form-group">
-    <input type="text" class="form-control" required id="time" placeholder="Time passed" v-model.number="formValues.time">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="floor" placeholder="Floor (optional)" v-model.number="formValues.floor">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" required id="horizontalAcc" placeholder="Horizontal accuracy" v-model.number="formValues.horizontalAcc">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" required id="verticalAcc" placeholder="Vertical accuracy" v-model.number="formValues.verticalAcc">
-  </div>
-  <div class="form-group">
-    <input type="text" class="form-control" id="activity" placeholder="Activity (optional)" v-model="formValues.activity">
-  </div> -->
-  <div class="form-group">
-  <button type="submit" class="btn btn-primary" @click.prevent="findLocation()">Find location</button></div>
-</form>
-
 </template>
 
 <style scoped>
 .map-size {
   height: 90%;
   /* width: 200px; */
-  background-color: aqua;
+  background-color: 9cc0f9;
 }
-#fixed{
+#fixed {
   position: fixed;
   top: 135px;
   left: 10px;
@@ -260,15 +311,12 @@ export default {
   padding: 5px;
   border: solid 2px white;
   border-radius: 6px;
-  background:  rgba(255,255,255,0.7);/* Green background with 30% opacity */
+  background: rgba(255, 255, 255, 0.7); /* Green background with 30% opacity */
 }
-.form-control{
+.form-control {
   border-width: 2px;
 }
-.form-group{
+.form-group {
   margin: 8px 2px;
 }
-
-
-
 </style>
