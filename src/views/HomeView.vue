@@ -165,34 +165,34 @@ export default {
   <div id="map-home" ref="homeMap" class="map-size"></div>
   <form id="fixed">
   <div class="form-group">
-    <input type="number" class="form-control border-4"  required id="lat" placeholder="Enter latitude" v-model="formValues.lat">
+    <input type="number" class="form-control border-4"  required id="lat" placeholder="Latitude" v-model="formValues.lat">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="lng" placeholder="Enter longtitude" v-model="formValues.lng">
+    <input type="number" class="form-control" required id="lng" placeholder="Longtitude" v-model="formValues.lng">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="alt" placeholder="Enter altitude" v-model="formValues.alt">
+    <input type="number" class="form-control" required id="alt" placeholder="Altitude" v-model="formValues.alt">
   </div>
   <div class="form-group">
-    <input type="text" class="form-control" id="name" placeholder="Enter name(optional)" v-model="formValues.name">
+    <input type="text" class="form-control" id="name" placeholder="Name(optional)" v-model="formValues.name">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="time" placeholder="Enter time" v-model="formValues.time">
+    <input type="number" class="form-control" required id="time" placeholder="Time passed" v-model="formValues.time">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" id="floor" placeholder="Enter floor (optional)" v-model="formValues.floor">
+    <input type="number" class="form-control" id="floor" placeholder="Floor (optional)" v-model="formValues.floor">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="horizontalAcc" placeholder="Enter horizontal accuracy" v-model="formValues.horizontalAcc">
+    <input type="number" class="form-control" required id="horizontalAcc" placeholder="Horizontal accuracy" v-model="formValues.horizontalAcc">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="verticalAcc" placeholder="Enter vertical accuracy" v-model="formValues.verticalAcc">
+    <input type="number" class="form-control" required id="verticalAcc" placeholder="Vertical accuracy" v-model="formValues.verticalAcc">
   </div>
   <div class="form-group">
-    <input type="number" class="form-control" required id="confidence" placeholder="Enter confidence" v-model="formValues.confidence">
+    <input type="number" class="form-control" required id="confidence" placeholder="Confidence" v-model="formValues.confidence">
   </div>
   <div class="form-group">
-    <input type="text" class="form-control" id="activity" placeholder="Enter activity (optional)" v-model="formValues.activity">
+    <input type="text" class="form-control" id="activity" placeholder="Activity (optional)" v-model="formValues.activity">
   </div>
   <div class="form-group">
   <button type="submit" class="btn btn-primary">Find location</button></div>
@@ -222,7 +222,6 @@ export default {
 }
 .form-group{
   margin: 8px 2px;
-  align-content: center;
 }
 
 
