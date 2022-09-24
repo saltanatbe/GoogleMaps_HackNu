@@ -3,6 +3,7 @@ import data from "@/stores/files.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
+import { useMapStore } from "@/stores/useMapStore.js";
 
 console.log("====================================");
 console.log("in about view");
@@ -27,6 +28,10 @@ const mapOptions = {
 };
 
 export default {
+  beforeUnmount() {
+    document.getElementById("map-predef").innerHTML = "";
+    console.log(document.getElementById("map-predef"));
+  },
   mounted() {
     async function initMap() {
       const mapDiv = document.getElementById("map-predef");
@@ -48,6 +53,28 @@ export default {
         directionalLight.position.set(0.5, -1, 0.5);
         scene.add(ambientLight);
         scene.add(directionalLight);
+
+        // ----cylinder -----
+        const geometry = new THREE.CylinderGeometry(40, 40, 20, 50);
+        const material = new THREE.MeshBasicMaterial({
+          color: 0x4184f0,
+          opacity: 0.5,
+          transparent: true,
+        });
+        const cylinder = new THREE.Mesh(geometry, material);
+        cylinder.rotateX(1.57);
+
+        scene.add(cylinder);
+        //-------------------
+        const geometry2 = new THREE.CylinderGeometry(40, 40, 20, 50);
+        const edges = new THREE.EdgesGeometry(geometry2);
+        const line = new THREE.LineSegments(
+          edges,
+          new THREE.LineBasicMaterial({ color: 0x4184f0 })
+        );
+        line.rotateX(1.57);
+        scene.add(line);
+        //-------------------
 
         loader = new GLTFLoader();
         loader.load("dot.gltf", (gltf) => {
@@ -114,8 +141,7 @@ export default {
     }
 
     (async () => {
-      console.log("====================================");
-      const map = await initMap();
+      let map = await initMap();
       initWebGLOverlayView(map);
     })();
   },
@@ -123,15 +149,12 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div id="map-predef" class="size"></div>
-  </div>
+  <div id="map-predef" class="map-size"></div>
 </template>
 
 <style scoped>
-.size {
-  height: 600px;
-  /* width: 200px; */
+.map-size {
+  height: 90%;
   background-color: aqua;
 }
 </style>
