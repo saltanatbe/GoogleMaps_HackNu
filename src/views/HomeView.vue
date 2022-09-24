@@ -1,3 +1,5 @@
+
+
 <script>
 import data from "@/stores/files.js";
 import * as THREE from "three";
@@ -5,6 +7,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Loader } from "@googlemaps/js-api-loader";
 import { useMapStore } from "@/stores/useMapStore.js";
 import Metadata from "./components/Metadata.vue";
+import { useGeolocation } from './useGeolocation'
 
 let index = 0;
 
@@ -26,6 +29,7 @@ const mapOptions = {
   altitude: data.list[index].Altitude,
   mapId: "e1b4d53499a2fa30",
 };
+
 const mapOptionsDark = {
   tilt: 0,
   heading: 0,
@@ -131,9 +135,7 @@ export default {
             });
             if (mapOptions.tilt < 67.5) {
               mapOptions.tilt += 0.5;
-            } else {
-              map.setAnimationLoop(null);
-            }
+            } 
           });
         };
       };
@@ -170,15 +172,20 @@ export default {
         "Vertical accuracy": null,
         Activity: "",
       },
+      myLocation:{
+        lat: null,
+        lng: null,
+      }
     };
   },
+
   methods: {
     findLocation() {
       mapOptions.center = {
         lat: this.formValues.Latitude,
         lng: this.formValues.Longitude,
       };
-      mapOptions.altitude = this.formValues.alt;
+      mapOptions.altitude = this.formValues.Altitude;
     },
   },
   components: { Metadata },
@@ -189,11 +196,6 @@ export default {
   <div>
     <div id="map-home" ref="homeMap" class="map-size"></div>
     <Metadata :formValues="formValues"></Metadata>
-    <div style="background: white; width: 300px">
-      <pre>
-        {{ JSON.stringify(formValues, null, 2) }}
-      </pre>
-    </div>
     <form id="fixed">
       <div class="form-group">
         <input
@@ -230,7 +232,7 @@ export default {
           type="text"
           class="form-control"
           id="name"
-          placeholder="Name(optional)"
+          placeholder="Name (optional)"
           v-model="formValues.Timestamp"
         />
       </div>
@@ -238,7 +240,6 @@ export default {
         <input
           type="text"
           class="form-control"
-          required
           id="time"
           placeholder="Time passed"
           v-model.number="formValues.time"
@@ -257,7 +258,6 @@ export default {
         <input
           type="text"
           class="form-control"
-          required
           id="horizontalAcc"
           placeholder="Horizontal accuracy"
           v-model.number="formValues.horizontalAcc"
@@ -267,7 +267,6 @@ export default {
         <input
           type="text"
           class="form-control"
-          required
           id="verticalAcc"
           placeholder="Vertical accuracy"
           v-model.number="formValues.verticalAcc"
@@ -300,7 +299,7 @@ export default {
 .map-size {
   height: 90%;
   /* width: 200px; */
-  background-color: aqua;
+  background-color: #9cc0f9;
 }
 #fixed {
   position: fixed;
