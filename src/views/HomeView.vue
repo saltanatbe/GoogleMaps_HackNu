@@ -44,14 +44,7 @@ export default {
     // console.log(document.getElementById("map-home"));
   },
   mounted() {
-    var element = document.getElementById("nightMode");
-    element.onclick = async function (event) {
-      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
-      else element.innerHTML = "Night Mode";
-      useMapStore().setNightMode();
-      map = await initMap(useMapStore().nightMode);
-      initWebGLOverlayView(map);
-    };
+    
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-home");
       const apiLoader = new Loader(apiOptions);
@@ -61,6 +54,15 @@ export default {
     }
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
+      var element = document.getElementById("nightMode");
+    element.onclick = async function (event) {
+      renderer.setAnimationLoop("null");
+      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+      else element.innerHTML = "Night Mode";
+      useMapStore().setNightMode();
+      map = await initMap(useMapStore().nightMode);
+      initWebGLOverlayView(map);
+    };
       const webGLOverlayView = new google.maps.WebGLOverlayView();
       webGLOverlayView.onAdd = () => {
         scene = new THREE.Scene();
@@ -131,9 +133,7 @@ export default {
             });
             if (mapOptions.tilt < 67.5) {
               mapOptions.tilt += 0.5;
-            } else {
-              map.setAnimationLoop(null);
-            }
+            } 
           });
         };
       };
@@ -178,7 +178,8 @@ export default {
         lat: this.formValues.Latitude,
         lng: this.formValues.Longitude,
       };
-      mapOptions.altitude = this.formValues.alt;
+      mapOptions.altitude = this.formValues.Altitude;
+      webGLOverlayView.setMap(map);
     },
   },
   components: { Metadata },
@@ -186,114 +187,47 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div id="map-home" ref="homeMap" class="map-size"></div>
-    <Metadata :formValues="formValues"></Metadata>
-    <div style="background: white; width: 300px">
+  <div id="map-home" ref="homeMap" class="map-size"></div>
+  <Metadata :formValues="formValues"></Metadata>
+  <div style="background: white; width: 300px;">
       <pre>
         {{ JSON.stringify(formValues, null, 2) }}
       </pre>
     </div>
-    <form id="fixed">
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control border-4"
-          required
-          id="lat"
-          placeholder="Latitude"
-          v-model.number.lazy="formValues.Latitude"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          required
-          id="lng"
-          placeholder="Longtitude"
-          v-model.number="formValues.Longitude"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          required
-          id="alt"
-          placeholder="Altitude"
-          v-model.number="formValues.Altitude"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          id="name"
-          placeholder="Name(optional)"
-          v-model="formValues.Timestamp"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          required
-          id="time"
-          placeholder="Time passed"
-          v-model.number="formValues.time"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          id="floor"
-          placeholder="Floor (optional)"
-          v-model.number="formValues.floor"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          required
-          id="horizontalAcc"
-          placeholder="Horizontal accuracy"
-          v-model.number="formValues.horizontalAcc"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          required
-          id="verticalAcc"
-          placeholder="Vertical accuracy"
-          v-model.number="formValues.verticalAcc"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          id="activity"
-          placeholder="Activity (optional)"
-          v-model="formValues.activity"
-        />
-      </div>
-      <!-- checkgu -->
-      <div class="form-group">
-        <button
-          type="submit"
-          class="btn btn-primary"
-          @click.prevent="findLocation()"
-        >
-          Find location
-        </button>
-      </div>
-    </form>
+  <form id="fixed">
+  <div class="form-group">
+    <input type="text" class="form-control border-4"  required id="lat" placeholder="Latitude" v-model.number.lazy="formValues.Latitude
+    ">
   </div>
+  <div class="form-group">
+    <input type="text" class="form-control" required id="lng" placeholder="Longtitude" v-model.number="formValues.Longitude">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" required id="alt" placeholder="Altitude" v-model.number="formValues.Altitude">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" id="name" placeholder="Name(optional)" v-model="formValues.Timestamp">
+  </div>
+  <!-- <div class="form-group">
+    <input type="text" class="form-control" required id="time" placeholder="Time passed" v-model.number="formValues.time">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" id="floor" placeholder="Floor (optional)" v-model.number="formValues.floor">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" required id="horizontalAcc" placeholder="Horizontal accuracy" v-model.number="formValues.horizontalAcc">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" required id="verticalAcc" placeholder="Vertical accuracy" v-model.number="formValues.verticalAcc">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" id="activity" placeholder="Activity (optional)" v-model="formValues.activity">
+  </div> -->
+  <!-- checkgu -->
+  <div class="form-group">
+  <button type="submit" class="btn btn-primary" @click.prevent="findLocation()">Find location</button></div>
+</form>
+
 </template>
 
 <style scoped>
