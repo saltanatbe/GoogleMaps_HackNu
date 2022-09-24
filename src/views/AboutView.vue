@@ -46,7 +46,8 @@ export default {
     // console.log(document.getElementById("map-predef"));
   },
   mounted() {
-    
+    var element = document.getElementById("nightMode");
+   
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-predef");
       const apiLoader = new Loader(apiOptions);
@@ -58,17 +59,14 @@ export default {
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
       const webGLOverlayView = new google.maps.WebGLOverlayView();
-        
-        var element = document.getElementById("nightMode");
-        element.onclick = async function (event) {
-        if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
-        else element.innerHTML = "Night Mode";
-        useMapStore().setNightMode();
-        map = await initMap(useMapStore().nightMode);
-        
-        initWebGLOverlayView(map);
-        };
-
+      element.onclick = async function (event) {
+      if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
+      else element.innerHTML = "Night Mode";
+      useMapStore().setNightMode();
+      map = await initMap(useMapStore().nightMode);
+      
+      webGLOverlayView.setMap(map);
+    };
       webGLOverlayView.onAdd = () => {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera();
