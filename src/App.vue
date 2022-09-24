@@ -32,7 +32,7 @@ import { RouterLink, RouterView } from "vue-router";
               to="/predefined"
               :class="{ active: this.$route.path === '/predefined' }"
               >Predefined</router-link
-            >
+            >          
           </li>
         </ul>
       </div>
