@@ -3,7 +3,7 @@
 // var sheet_name_list = workbook.SheetNames;
 // console.log(XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]))
 var XLSX = require('xlsx');
-var workbook = XLSX.readFile('hacknu-dev-data.xlsx');
+var workbook = XLSX.readFile('hacknu-prod-data.xlsx');
 var sheet_name_list = workbook.SheetNames;
 var data = [];
 
@@ -64,7 +64,7 @@ file.write("[");
     }
         file.write("]")
         if (d < data.length - 1) {
-            file.write(",");
+            file.write(",\n");
         }
     }
     file.write("]")
