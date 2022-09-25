@@ -7,52 +7,62 @@ import { useMapStore } from "@/stores/useMapStore.js";
 import Metadata from "./components/Metadata.vue";
 
 let index = 0;
-
+//leave
 const apiOptions = {
   apiKey: "AIzaSyAues8dw_usefVuVYKfmGAmPmBvPBqmCgY",
   version: "beta",
 };
 
+//leave
 var p = false;
 let map = null;
 
+//leave
 let myLocation = {
-  lat: data.list[index].Latitude,
-  lng: data.list[index].Longitude,
+  lat: data.list[0][index].Latitude,
+  lng: data.list[0][index].Longitude,
 };
 
+//leave
 const mapOptions = {
-
   tilt: 0,
   heading: 0,
   zoom: 18,
   center: {
-    lat: data.list[index].Latitude,
-    lng: data.list[index].Longitude,
+    lat: data.list[0][index].Latitude,
+    lng: data.list[0][index].Longitude,
   },
-  altitude: data.list[index].Altitude,
+  altitude: data.list[0][index].Altitude,
   mapId: "e1b4d53499a2fa30",
 };
+
+//leave
 const mapOptionsDark = {
   tilt: 0,
   heading: 0,
   zoom: 18,
   center: {
-    lat: data.list[index].Latitude,
-    lng: data.list[index].Longitude,
+    lat: data.list[0][index].Latitude,
+    lng: data.list[0][index].Longitude,
   },
-  altitude: data.list[index].Altitude,
+  altitude: data.list[0][index].Altitude,
   mapId: "580dbb52dcccde5e",
 };
 
 export default {
   beforeUnmount() {
-
     document.getElementById("map-home").innerHTML = "";
     // console.log(document.getElementById("map-home"));
   },
   mounted() {
-    
+    let vue = this;
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    console.log(urlParams);
+    if (urlParams.get("x")) this.formValues.Latitude = urlParams.get("x");
+    if (urlParams.get("y")) this.formValues.Longitude = urlParams.get("y");
+    if (urlParams.get("z")) this.formValues.Altitude = urlParams.get("z");
+    console.log(this.formValues);
     async function initMap(isNight) {
       const mapDiv = document.getElementById("map-home");
       const apiLoader = new Loader(apiOptions);
@@ -68,10 +78,11 @@ export default {
     function initWebGLOverlayView(map) {
       let scene, renderer, camera, loader;
       var element = document.getElementById("nightMode");
-    var button = document.getElementById("path");
+      var button = document.getElementById("path");
 
-    var btn = document.getElementById("find");
-    btn.onclick = async function (event) {
+      //find location-leave
+      var btn = document.getElementById("find");
+      btn.onclick = async function (event) {
       renderer.setAnimationLoop(() => {
             map.moveCamera({
               tilt: mapOptions.tilt,
@@ -87,8 +98,9 @@ export default {
             renderer.setAnimationLoop(null);
           }, 500)
           
-    };
+      };
 
+      //path - leave
     button.onclick = async function (event) {
         event.preventDefault();
         if (p == false) {
@@ -120,6 +132,8 @@ export default {
         }
         p = !p;
       };
+
+      //night mode leave
     element.onclick = async function (event) {
       renderer.setAnimationLoop("null");
       if (!useMapStore().nightMode) element.innerHTML = "Light Mode";
@@ -127,7 +141,8 @@ export default {
       useMapStore().setNightMode();
       map = await initMap(useMapStore().nightMode);
       initWebGLOverlayView(map);
-    };
+      };
+    
       const webGLOverlayView = new google.maps.WebGLOverlayView();
       webGLOverlayView.onAdd = () => {
         scene = new THREE.Scene();
@@ -138,7 +153,12 @@ export default {
         scene.add(ambientLight);
         scene.add(directionalLight);
         // ----cylinder -----
-        const geometry = new THREE.CylinderGeometry(40, 40, 20, 50);
+        const geometry = new THREE.CylinderGeometry(
+          data.list[0][0]["Horizontal accuracy"],
+          data.list[0][0]["Horizontal accuracy"],
+          data.list[0][0]["Vertical accuracy"],
+          50
+        );
         const material = new THREE.MeshBasicMaterial({
           color: 4293872,
           opacity: 0.5,
@@ -148,7 +168,12 @@ export default {
         cylinder.rotateX(1.57);
         scene.add(cylinder);
         //-------------------
-        const geometry2 = new THREE.CylinderGeometry(40, 40, 20, 50);
+        const geometry2 = new THREE.CylinderGeometry(
+          data.list[0][0]["Horizontal accuracy"],
+          data.list[0][0]["Horizontal accuracy"],
+          data.list[0][0]["Vertical accuracy"],
+          50
+        );
         const edges = new THREE.EdgesGeometry(geometry2);
         const line = new THREE.LineSegments(
           edges,
@@ -171,9 +196,26 @@ export default {
           ...gl.getContextAttributes(),
         });
         renderer.autoClear = false;
-        let start = data.list[index].Timestamp;
+        let start = data.list[0][0].Timestamp;
         loader.manager.onLoad = () => {
+          function createShallow() {
+            const geometry = new THREE.CylinderGeometry(
+              data.list[0][0]["Horizontal accuracy"],
+              data.list[0][0]["Horizontal accuracy"],
+              data.list[0][0]["Vertical accuracy"],
+              50
+            );
+            const material = new THREE.MeshBasicMaterial({
+              color: 0x4184f0,
+              opacity: 0.5,
+              transparent: true,
+            });
+            const cylinder = new THREE.Mesh(geometry, material);
+            cylinder.rotateX(1.57);
+            scene.add(cylinder);
+          }
           renderer.setAnimationLoop(() => {
+            createShallow();
             // start += 1000;
             // // console.log(start, data.list[index + 1].Timestamp);
             // if (start >= data.list[(index + 1) % data.list.length].Timestamp) {
@@ -206,9 +248,15 @@ export default {
       };
       webGLOverlayView.onDraw = ({ gl, transformer }) => {
         const latLngAltitudeLiteral = {
-          lat: mapOptions.center.lat,
-          lng: mapOptions.center.lng,
-          altitude: mapOptions.altitude,
+          lat: !vue.formValues.Latitude
+            ? mapOptions.center.lat
+            : Number(vue.formValues.Latitude),
+          lng: !vue.formValues.Longitude
+            ? mapOptions.center.lat
+            : Number(vue.formValues.Longitude),
+          altitude: !vue.formValues.Altitude
+            ? mapOptions.center.lat
+            : Number(vue.formValues.Altitude),
         };
         const matrix = transformer.fromLatLngAltitude(latLngAltitudeLiteral);
         camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
@@ -227,9 +275,9 @@ export default {
   data() {
     return {
       formValues: {
-        Latitude: data.list[index].Latitude,
-        Longitude: data.list[index].Longitude,
-        Altitude: data.list[index].Altitude,
+        Latitude: data.list[0][index].Latitude,
+        Longitude: data.list[0][index].Longitude,
+        Altitude: data.list[0][index].Altitude,
         Identifier: "",
         Timestamp: null,
         "Floor label": null,
@@ -244,6 +292,7 @@ export default {
     };
   },
   methods: {
+    //find location leave
     findLocation() {
       mapOptions.center = {
         lat: this.formValues.Latitude,
@@ -251,6 +300,14 @@ export default {
       };
       mapOptions.altitude = this.formValues.Altitude;
     },
+    createUrl() {
+      let x = this.formValues.Latitude;
+      let y = this.formValues.Longitude;
+      let z = this.formValues.Altitude;
+      let url = `http://127.0.0.1:5173?x=${x}&y=${y}&z=${z}`;
+      return url;
+    },
+    //get my location leave
     getMyLocation() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -279,7 +336,41 @@ export default {
 </script>
 
 <template>
-  <div>
+  
+    <div
+    class="modal fade"
+    id="exampleModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <a :href="createUrl()">share this link!</a>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container90">
     <div id="map-home" ref="homeMap" class="map-size"></div>
     
     <Metadata :formValues="formValues"></Metadata>
@@ -331,18 +422,34 @@ export default {
         </button>
       </div>
     </form>
+    <div class="fixed">
       <button id="path" class="btn btn-primary">
           Path
       </button>
+      <button
+      type="button"
+      class="btn btn-primary fixed2"
+      data-toggle="modal"
+      data-target="#exampleModal"
+    >
+      Share with Friends!
+    </button>
     </div>
+      
+  </div>
 </template>
 
 <style scoped>
 .map-size {
-  height: 90%;
+  height: 100%;
   /* width: 200px; */
   background-color: #9cc0f9;
 }
+.container90 {
+  height: 90%;
+}
+
+
 #fixed {
   position: fixed;
   top: 135px;
@@ -360,9 +467,10 @@ export default {
 .form-group  {
   margin: 8px 2px;
 }
-#path{
+.fixed{
   position:fixed;
   left:20px;
+  margin:10px;
   top: 635px;
 }
 </style>
